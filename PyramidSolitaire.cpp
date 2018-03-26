@@ -114,6 +114,7 @@ int main()
 	generateCard(matrix);
 	printPyramid(matrix, row);
 	int a,b;
+	printf("\nInput Card Position :");
 	cin>>a>>b;
 	pairCard(matrix, row, a, b);
 	printPyramid(matrix,row);
