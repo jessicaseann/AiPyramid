@@ -9,16 +9,44 @@ using namespace std;
 const int MAT_SIZE = 52;
 
 int randomFunct(int x)
-{    
+{
 
 	return rand()%x;
 }
 
 bool covered(int *matrix,int *row, int pair)
 {
-	if(row[pair]==7) return false;
+	if(row[pair]>=7) return false;
 	else if(matrix[row[pair]+pair]!=0 || matrix[row[pair]+pair+1]!=0 ) return true; //Card covered
 	else return false;
+}
+
+
+void openDeck(int *matrix, int row[])
+{
+    int temp, counter=0, k;
+    for(int i=28;i<52;i++)
+    {
+        if(matrix[i]==0)
+        {
+            counter++;
+        }
+    }
+    if(matrix[28]==0)
+    {
+        k=28;
+        temp=matrix[k];
+    }
+    else if(matrix[29]==0)
+    {
+        k=29;
+        temp=matrix[k];
+    }
+    for(int i=k;i<52;i++)
+    {
+        matrix[i]=matrix[i+1];
+    }
+    matrix[51-counter]=temp;
 }
 
 void pairCard(int *matrix, int row[], int pair1, int pair2)
@@ -26,6 +54,16 @@ void pairCard(int *matrix, int row[], int pair1, int pair2)
 	if(matrix[pair1]+matrix[pair2]==13 && !covered(matrix, row, pair1) && !covered(matrix, row, pair2)){
 		matrix[pair1]=0;
 		matrix[pair2]=0;
+
+        if(matrix[28]==0&&matrix[29]==0)
+        {
+            openDeck(matrix,row);
+            openDeck(matrix,row);
+        }
+        else if(matrix[29]==0||matrix[28]==0)
+        {
+            openDeck(matrix,row);
+        }
 	}
 }
 
@@ -36,9 +74,8 @@ void pairCard(int *matrix, int row[], int pair1)
 	}
 }
 
-
 void printPyramid(int *matrix, int row[])
-{	
+{
 	system("cls");
 	// End of Declaration
 	int post =0;
@@ -62,11 +99,11 @@ void printPyramid(int *matrix, int row[])
 		cout<<endl;
 		cout<<endl;
 	}
-	
+
 	cout<<endl;
-	
+
 	for(int i=post;i<MAT_SIZE; i++) {
-			if(row[i] == 8) 
+			if(row[i] == 8)
 				printf("*  ");
 			else if(matrix[i] == 1)
 				printf("A ");
@@ -89,35 +126,61 @@ void generateCard(int *matrix)
 		matrix[i] = number;
 		number++;
 	}
-	
+
 	random_shuffle(&matrix[0], &matrix[52]);
 	random_shuffle(&matrix[0], &matrix[52], randomFunct);
-	
+
 }
+
+
 int main()
 {
 	srand(unsigned(time(0)));
 	// Declare Matrices
-	
+
 	int row[52] = { 1,
 					2, 2,
 					3, 3, 3,
 					4, 4, 4, 4,
 					5, 5, 5, 5, 5,
-					6, 6, 6, 6, 6, 6, 
+					6, 6, 6, 6, 6, 6,
 					7, 7, 7, 7, 7, 7, 7,
-					9, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
+					9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9
 					};
 
-	int *matrix;
-	matrix = (int *)malloc (MAT_SIZE * sizeof(int ));
-	generateCard(matrix);
-	printPyramid(matrix, row);
-	int a,b;
-	printf("\nInput Card Position :");
-	cin>>a>>b;
-	pairCard(matrix, row, a, b);
-	printPyramid(matrix,row);
+    int *matrix;
+    matrix = (int *)malloc (MAT_SIZE * sizeof(int ));
+    generateCard(matrix);
+    printPyramid(matrix, row);
+    int a,b,i;
+    while(true)
+    {
+        cout<<endl;
+        cout<<"Compare (1), Open Deck(2): ";
+        cin>>i;
+        switch(i)
+        {
+            case 1:
+            printf("\nInput Card Position :");
+            cin>>a;
+            if(matrix[a]==13)
+            {
+                pairCard(matrix, row, a);
+                printPyramid(matrix,row);
+            }
+            else
+            {
+                cin>>b;
+                pairCard(matrix, row, a, b);
+                printPyramid(matrix,row);
+            }
+            break;
+            case 2:
+                openDeck(matrix,row);
+                printPyramid(matrix,row);
+            break;
+        }
+    }
 
 	return 0;
 }
