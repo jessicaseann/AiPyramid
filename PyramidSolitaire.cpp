@@ -90,7 +90,10 @@ void pairCard(int *matrix, int row[], int pair1)
 	if(matrix[pair1] && !covered(matrix, row, pair1)){
 		matrix[pair1]=0;
 	}
-	openDeck(matrix,row);
+	if(matrix[29]==0||matrix[28]==0)
+        {
+            openDeck(matrix,row);
+        }
 }
 
 
