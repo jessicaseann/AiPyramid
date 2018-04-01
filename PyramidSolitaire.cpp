@@ -24,7 +24,8 @@ bool covered(int *matrix,int *row, int pair)
 
 void openDeck(int *matrix, int row[])
 {
-    int temp, counter=0, k;
+    int temp, counter=0, k=28;
+	int count=28;
     for(int i=28;i<52;i++)
     {
         if(matrix[i]==0)
@@ -32,21 +33,38 @@ void openDeck(int *matrix, int row[])
             counter++;
         }
     }
-    if(matrix[28]==0)
-    {
-        k=28;
-        temp=matrix[k];
-    }
-    else if(matrix[29]==0)
-    {
-        k=29;
-        temp=matrix[k];
-    }
-    for(int i=k;i<52;i++)
-    {
-        matrix[i]=matrix[i+1];
-    }
-    matrix[51-counter]=temp;
+
+//K  10 7 9 5 10 5 3 3 4 7 9 2 3 K  3 8 A 8 9 Q K  2 6
+	temp=matrix[k];
+	 if(matrix[29]==0)
+		{
+			k=29;
+			temp=matrix[k];
+		}
+	if(counter==0)
+		{	
+		
+		for(int i=k;i<52;i++)
+		{
+			matrix[i]=matrix[i+1];
+		}
+		matrix[51]=temp;
+	}
+	else if(counter!=0)
+	{ 
+		for(int i=k;i<52;i++)
+		{
+			matrix[i]=matrix[i+1];
+		}
+		matrix[51]=temp;
+		
+		for (int i = 28; i < 52; i++)
+        if (matrix[i] != 0)
+            matrix[count++] = matrix[i]; 
+		while (count < 52)
+			matrix[count++] = 0;
+		}
+   
 }
 
 void pairCard(int *matrix, int row[], int pair1, int pair2)
@@ -72,7 +90,11 @@ void pairCard(int *matrix, int row[], int pair1)
 	if(matrix[pair1] && !covered(matrix, row, pair1)){
 		matrix[pair1]=0;
 	}
+	openDeck(matrix,row);
 }
+
+
+
 
 void printPyramid(int *matrix, int row[])
 {
@@ -92,7 +114,7 @@ void printPyramid(int *matrix, int row[])
 			else if (matrix[post] == 12)
 				printf("Q   ");
 			else if (matrix[post] == 13)
-				printf("K  ");
+				printf("K   ");
 			else printf("%d   ",matrix[post]);
 			post++;
 		}
@@ -112,7 +134,7 @@ void printPyramid(int *matrix, int row[])
 			else if (matrix[i] == 12)
 				printf("Q ");
 			else if (matrix[i] == 13)
-				printf("K  ");
+				printf("K ");
 			else printf("%d ",matrix[i]);
 	}
 }
@@ -155,9 +177,15 @@ int main()
     int a,b,i;
     while(true)
     {
+		do{
+			
         cout<<endl;
         cout<<"Compare (1), Open Deck(2): ";
-        cin>>i;
+		cin>>i ;
+			if(i==1 || i ==2) break;
+        }
+		while (true);
+		
         switch(i)
         {
             case 1:
