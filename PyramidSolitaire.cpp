@@ -41,23 +41,15 @@ void openDeck(int *matrix, int row[])
 			k=29;
 			temp=matrix[k];
 		}
-	if(counter==0)
-		{	
 		
-		for(int i=k;i<52;i++)
+	for(int i=k;i<52;i++)
 		{
 			matrix[i]=matrix[i+1];
 		}
 		matrix[51]=temp;
-	}
-	else if(counter!=0)
+		
+	if(counter!=0)
 	{ 
-		for(int i=k;i<52;i++)
-		{
-			matrix[i]=matrix[i+1];
-		}
-		matrix[51]=temp;
-		
 		for (int i = 28; i < 52; i++)
         if (matrix[i] != 0)
             matrix[count++] = matrix[i]; 
