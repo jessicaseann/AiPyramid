@@ -95,7 +95,14 @@ void printPyramid(int *matrix, int row[])
 {
 	system("cls");
 	// End of Declaration
-	int post =0;
+	int post =0,post2=0;
+	
+	/*HELPER REMOVE LATER*/
+	for (int m=0 ; m<=2*8;m++) printf("  ");
+	printf("POSITION HELPER");
+	/*HELPER REMOVE LATER*/
+	
+	
 	for (int j =0 ; j<=7;j++)
 	{
 		for (int m=6-j ; m>=0;m--) printf("  ");
@@ -112,7 +119,19 @@ void printPyramid(int *matrix, int row[])
 				printf("K   ");
 			else printf("%d   ",matrix[post]);
 			post++;
+			
+
 		}
+				/*HELPER REMOVE LATER*/
+			for (int m=0 ; m<=2*(6-j)+1;m++) printf("  ");
+				for(int i=0; i<j; i++) {
+					if (post2<10)
+					printf("%d   ",post2);
+					else
+					printf("%d  ",post2);
+					post2++;
+				}
+		/*HELPER REMOVE LATER*/
 		cout<<endl;
 		cout<<endl;
 	}
@@ -172,6 +191,9 @@ int main()
     int a,b,i;
     while(true)
     {
+		
+		/*HELPER REMOVE LATER*/
+		
 		do{
 			
         cout<<endl;
