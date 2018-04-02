@@ -22,10 +22,11 @@ bool covered(int *matrix,int *row, int pair)
 }
 
 
-void openDeck(int *matrix, int row[])
+int openDeck(int *matrix, int row[])
 {
     int temp, counter=0, k=28;
 	int count=28;
+
     for(int i=28;i<52;i++)
     {
         if(matrix[i]==0)
@@ -36,27 +37,27 @@ void openDeck(int *matrix, int row[])
 
 //K  10 7 9 5 10 5 3 3 4 7 9 2 3 K  3 8 A 8 9 Q K  2 6
 	temp=matrix[k];
-	 if(matrix[29]==0)
+    if(matrix[29]==0)
 		{
 			k=29;
 			temp=matrix[k];
 		}
-		
+
 	for(int i=k;i<52;i++)
 		{
 			matrix[i]=matrix[i+1];
 		}
 		matrix[51]=temp;
-		
+
 	if(counter!=0)
-	{ 
+	{
 		for (int i = 28; i < 52; i++)
         if (matrix[i] != 0)
-            matrix[count++] = matrix[i]; 
+            matrix[count++] = matrix[i];
 		while (count < 52)
 			matrix[count++] = 0;
-		}
-   
+    }
+    return counter;
 }
 
 void pairCard(int *matrix, int row[], int pair1, int pair2)
@@ -96,13 +97,13 @@ void printPyramid(int *matrix, int row[])
 	system("cls");
 	// End of Declaration
 	int post =0,post2=0;
-	
+
 	/*HELPER REMOVE LATER*/
 	for (int m=0 ; m<=2*8;m++) printf("  ");
 	printf("POSITION HELPER");
 	/*HELPER REMOVE LATER*/
-	
-	
+
+
 	for (int j =0 ; j<=7;j++)
 	{
 		for (int m=6-j ; m>=0;m--) printf("  ");
@@ -119,7 +120,7 @@ void printPyramid(int *matrix, int row[])
 				printf("K   ");
 			else printf("%d   ",matrix[post]);
 			post++;
-			
+
 
 		}
 				/*HELPER REMOVE LATER*/
@@ -188,21 +189,21 @@ int main()
     matrix = (int *)malloc (MAT_SIZE * sizeof(int ));
     generateCard(matrix);
     printPyramid(matrix, row);
-    int a,b,i;
+    int a,b,i,batas=0,batascounter=0,counter;
     while(true)
     {
-		
+
 		/*HELPER REMOVE LATER*/
-		
+
 		do{
-			
+
         cout<<endl;
         cout<<"Compare (1), Open Deck(2): ";
 		cin>>i ;
 			if(i==1 || i ==2) break;
         }
 		while (true);
-		
+
         switch(i)
         {
             case 1:
@@ -223,6 +224,17 @@ int main()
             case 2:
                 openDeck(matrix,row);
                 printPyramid(matrix,row);
+                batas++;
+                if(batas==(24-counter))
+                {
+                    batascounter++;
+                    batas=0;
+                }
+                cout<<batascounter<<endl;
+                if(batascounter==3)
+                {
+                    return 0;
+                }
             break;
         }
     }
