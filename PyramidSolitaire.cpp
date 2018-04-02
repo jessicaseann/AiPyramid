@@ -22,7 +22,7 @@ bool covered(int *matrix,int *row, int pair)
 }
 
 
-int openDeck(int *matrix, int row[])
+void openDeck(int *matrix, int row[])
 {
     int temp, counter=0, k=28;
 	int count=28;
@@ -35,7 +35,7 @@ int openDeck(int *matrix, int row[])
         }
     }
 
-//K  10 7 9 5 10 5 3 3 4 7 9 2 3 K  3 8 A 8 9 Q K  2 6
+//3 8 9 8 J 3 Q 10 A 6 3 6 K K 10 4 7 7 4 A 2 5 2 9
 	temp=matrix[k];
     if(matrix[29]==0)
 		{
@@ -57,7 +57,6 @@ int openDeck(int *matrix, int row[])
 		while (count < 52)
 			matrix[count++] = 0;
     }
-    return counter;
 }
 
 void pairCard(int *matrix, int row[], int pair1, int pair2)
@@ -189,7 +188,7 @@ int main()
     matrix = (int *)malloc (MAT_SIZE * sizeof(int ));
     generateCard(matrix);
     printPyramid(matrix, row);
-    int a,b,i,batas=0,batascounter=0,counter;
+    int a,b,i,batas=0,batascounter=0,counter=0;
     while(true)
     {
 
@@ -222,6 +221,11 @@ int main()
             }
             break;
             case 2:
+				counter=0;
+				for(int i=28;i<52;i++)
+				{if (matrix[i]==0)counter++;
+				}
+			
                 openDeck(matrix,row);
                 printPyramid(matrix,row);
                 batas++;
@@ -230,11 +234,15 @@ int main()
                     batascounter++;
                     batas=0;
                 }
-                cout<<batascounter<<endl;
-                if(batascounter==3)
+                cout<<"\nBATASCOUNTER : "<<batascounter<<endl;
+                cout<<"\nBATAS : "<<batas<<endl;
+                cout<<"\nCOUNTER : "<<counter<<endl;
+              
+				if(batascounter==3)
                 {
                     return 0;
                 }
+				
             break;
         }
     }
