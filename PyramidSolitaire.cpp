@@ -8,22 +8,18 @@ using namespace std;
 
 const int MAT_SIZE = 52;
 
-int randomFunct(int x)
-{
-
+int randomFunct(int x) {
 	return rand()%x;
 }
 
-bool covered(int *matrix,int *row, int pair)
-{
-	if(row[pair]>=7) return false;
+bool covered(int *matrix,int *row, int pair) {
+	if(row[pair] >= 7) return false;
 	else if(matrix[row[pair]+pair]!=0 || matrix[row[pair]+pair+1]!=0 ) return true; //Card covered
 	else return false;
 }
 
 
-void openDeck(int *matrix, int row[])
-{
+void openDeck(int *matrix, int row[]) {
     int temp, counter=0, k=28;
 	int count=28;
 
@@ -59,8 +55,7 @@ void openDeck(int *matrix, int row[])
     }
 }
 
-void pairCard(int *matrix, int row[], int pair1, int pair2)
-{
+void pairCard(int *matrix, int row[], int pair1, int pair2) {
 	if(matrix[pair1]+matrix[pair2]==13 && !covered(matrix, row, pair1) && !covered(matrix, row, pair2)){
 		matrix[pair1]=0;
 		matrix[pair2]=0;
@@ -77,8 +72,7 @@ void pairCard(int *matrix, int row[], int pair1, int pair2)
 	}
 }
 
-void pairCard(int *matrix, int row[], int pair1)
-{
+void pairCard(int *matrix, int row[], int pair1) {
 	if(matrix[pair1] && !covered(matrix, row, pair1)){
 		matrix[pair1]=0;
 	}
@@ -88,11 +82,7 @@ void pairCard(int *matrix, int row[], int pair1)
         }
 }
 
-
-
-
-void printPyramid(int *matrix, int row[])
-{
+void printPyramid(int *matrix, int row[]) {
 	system("cls");
 	// End of Declaration
 	int post =0,post2=0;
@@ -153,8 +143,7 @@ void printPyramid(int *matrix, int row[])
 	}
 }
 
-void generateCard(int *matrix)
-{
+void generateCard(int *matrix) {
 	int number =1;
 	for (int i =0 ; i < MAT_SIZE;i++)
 	{
@@ -169,8 +158,7 @@ void generateCard(int *matrix)
 }
 
 
-int main()
-{
+int main() {
 	srand(unsigned(time(0)));
 	// Declare Matrices
 
@@ -189,32 +177,27 @@ int main()
     generateCard(matrix);
     printPyramid(matrix, row);
     int a,b,i,batas=0,batascounter=0,counter=0;
-    while(true)
-    {
+
+    while(true) {
 
 		/*HELPER REMOVE LATER*/
 
-		do{
-
-        cout<<endl;
-        cout<<"Compare (1), Open Deck(2): ";
-		cin>>i ;
-			if(i==1 || i ==2) break;
+		do {
+		    cout<<endl;
+		    cout<<"Compare (1), Open Deck(2): ";
+			cin>>i ;
+				if(i==1 || i ==2) break;
         }
 		while (true);
 
-        switch(i)
-        {
+        switch(i) {
             case 1:
             printf("\nInput Card Position :");
             cin>>a;
-            if(matrix[a]==13)
-            {
+            if(matrix[a]==13) {
                 pairCard(matrix, row, a);
                 printPyramid(matrix,row);
-            }
-            else
-            {
+            } else {
                 cin>>b;
                 pairCard(matrix, row, a, b);
                 printPyramid(matrix,row);
@@ -222,15 +205,14 @@ int main()
             break;
             case 2:
 				counter=0;
-				for(int i=28;i<52;i++)
-				{if (matrix[i]==0)counter++;
+				for(int i=28;i<52;i++) {
+                    if (matrix[i]==0)counter++;
 				}
 			
                 openDeck(matrix,row);
                 printPyramid(matrix,row);
                 batas++;
-                if(batas==(24-counter))
-                {
+                if(batas==(24-counter)) {
                     batascounter++;
                     batas=0;
                 }
@@ -238,11 +220,9 @@ int main()
                 cout<<"\nBATAS : "<<batas<<endl;
                 cout<<"\nCOUNTER : "<<counter<<endl;
               
-				if(batascounter==3)
-                {
+				if(batascounter==3) {
                     return 0;
                 }
-				
             break;
         }
     }
