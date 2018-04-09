@@ -15,7 +15,7 @@
 // Retrieves the card
 char Pyramid::get_card(int representation) {
 	switch(representation) {
-		case -1: return '-';
+		case NO_CARD: return '-';
 		case 1: return 'A';
 		case 10: return 'T';
 		case 11: return 'J';
@@ -50,8 +50,9 @@ bool Pyramid::check_covered(int row, int col) {
 	if(row > 7 || row < 1 || col > row || col < 1) return true;
 	if(row == 7 && col <= row) return false;
 	int index;
-	index = row * (row + 1) / 2 + col;
-	return pyramid[index] == NO_CARD && pyramid[index + 1] == NO_CARD;
+	index = row * (row + 1) / 2 + col - 1;
+	std::cout << "Index check_covered: " << index << std::endl;
+	return !(pyramid[index] == NO_CARD && pyramid[index + 1] == NO_CARD);
 }
 
 // Constructor
@@ -77,6 +78,13 @@ Pyramid::Pyramid() {
 	total_reset_deck = 0;
 }
 
+Pyramid::Pyramid(Pyramid *_pyramid) {
+	for(int i=0; i<TOTAL_CARDS; i++) pyramid[i] = _pyramid->pyramid[i];
+	top_deck = _pyramid->top_deck;
+	top_waste = _pyramid->top_waste;
+	total_reset_deck = _pyramid->total_reset_deck;
+}
+
 // Destructor
 Pyramid::~Pyramid() {
 }
@@ -84,12 +92,14 @@ Pyramid::~Pyramid() {
 // Functions
 // Retrieves the card on the top of the deck
 char Pyramid::get_top_deck_card() {
-	get_card(pyramid[top_deck]);
+	if(top_deck == NO_CARD) return '-';
+	return get_card(pyramid[top_deck]);
 }
 
 // Retrieves the card on the top of the waste
 char Pyramid::get_top_waste_card() {
-	get_card(pyramid[top_waste]);
+	if(top_waste == NO_CARD) return '-';
+	return get_card(pyramid[top_waste]);
 }
 
 // Retrieves the cards on pyramid
@@ -99,11 +109,6 @@ char * Pyramid::get_pyramid() {
 		pyramid_cards[i] = get_card(pyramid[i]);
 	}
 	return pyramid_cards;
-}
-
-// Retrieves the map of uncovered cards
-int * Pyramid::get_uncovered_cards() {
-	return uncovered_cards;
 }
 
 // Draw a card from deck

@@ -14,8 +14,6 @@ class Pyramid
 	int top_deck;
 	// Index to top of the waste
 	int top_waste;
-	// Store all uncovered cards in pyramid
-	int uncovered_cards[13];
 	// How many times the deck is reset
 	int total_reset_deck;
 	// Retrieves the card
@@ -35,6 +33,7 @@ class Pyramid
 	static const int TOTAL_POSSIBLE_UNCOVERED_CARDS = 13;
 	// Constructor
 	Pyramid();
+	Pyramid(Pyramid *pyramid);
 	// Destructor
 	~Pyramid();
 	// Functions
@@ -44,8 +43,6 @@ class Pyramid
 	char get_top_waste_card();
 	// Retrieves the cards on pyramid
 	char * get_pyramid();
-	// Retrieves the map of uncovered cards
-	int * get_uncovered_cards();
 	// Draw a card from deck
 	// If the deck is empty, the cards in the waste
 	// is going back to deck in order
