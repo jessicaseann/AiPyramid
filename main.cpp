@@ -4,6 +4,7 @@
 #include <utility>
 #include <cassert>
 #include "pyramid.hpp"
+#include "bfs_pyramid.hpp"
 using namespace std;
 
 void print_game(Pyramid *pyramid);

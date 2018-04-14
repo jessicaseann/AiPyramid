@@ -26,22 +26,24 @@ char Pyramid::get_card(int representation) {
 }
 
 // Previous card
-int Pyramid::previous(int index) {
-	if(index < TOTAL_PYRAMID_CARDS || index >= TOTAL_CARDS) return NO_CARD;
+int Pyramid::previous(int index, int mask) {
+	if(mask == NO_MASK) mask = deck_waste_mask;
+	if(index < TOTAL_PYRAMID_CARDS - 1 || index >= TOTAL_CARDS) return NO_CARD;
 	do {
 		index--;
-		if(index < TOTAL_PYRAMID_CARDS) return NO_CARD;
-	} while(pyramid[index] == NO_CARD);
+		if(index < TOTAL_PYRAMID_CARDS - 1) return NO_CARD;
+	} while(!get_deck_waste_mask_value(index, mask));
 	return index;
 }
 
 // Next card
-int Pyramid::next(int index) {
-	if(index < TOTAL_PYRAMID_CARDS || index >= TOTAL_CARDS) return NO_CARD;
+int Pyramid::next(int index, int mask) {
+	if(mask == NO_MASK) mask = deck_waste_mask;
+	if(index < TOTAL_PYRAMID_CARDS - 1 || index >= TOTAL_CARDS) return NO_CARD;
 	do {
 		index++;
 		if(index >= TOTAL_CARDS) return NO_CARD;
-	} while(pyramid[index] == NO_CARD);
+	} while(!get_deck_waste_mask_value(index, mask));
 	return index;
 }
 
@@ -52,19 +54,31 @@ bool Pyramid::check_covered(int row, int col, int mask) {
 	if(mask == NO_MASK) mask = pyramid_mask;
 	int index;
 	index = row * (row + 1) / 2 + col - 1;
-	return get_mask(index) || get_mask(index + 1);
+	return get_pyramid_mask_value(index) || get_pyramid_mask_value(index + 1);
 }
 
 // Set pyramid mask
-void Pyramid::set_mask(int n, int *mask, bool bit_value) {
+void Pyramid::set_pyramid_mask_value(int n, int *mask, bool bit_value) {
 	if(mask == NULL) mask = &pyramid_mask;
 	(*mask) = (*mask) ^ ((!bit_value) << (TOTAL_PYRAMID_CARDS - n - 1));
 }
 
 // Get pyramid mask
-bool Pyramid::get_mask(int n, int mask) {
+bool Pyramid::get_pyramid_mask_value(int n, int mask) {
 	if(mask == NO_MASK) mask = pyramid_mask;
 	return (mask >> (TOTAL_PYRAMID_CARDS - n - 1)) & 1;
+}
+
+// Set deck and waste mask
+void Pyramid::set_deck_waste_mask_value(int n, int *mask, bool bit_value) {
+	if(mask == NULL) mask = &deck_waste_mask;
+	(*mask) = (*mask) ^ ((!bit_value) << (TOTAL_CARDS - n - 1));
+}
+
+// Get pyramid mask
+bool Pyramid::get_deck_waste_mask_value(int n, int mask) {
+	if(mask == NO_MASK) mask = deck_waste_mask;
+	return (mask >> (TOTAL_CARDS - n - 1)) & 1;
 }
 
 // Constructor
@@ -89,6 +103,7 @@ Pyramid::Pyramid() {
 	top_waste = NO_CARD;
 	total_reset_deck = 0;
 	pyramid_mask = PYRAMID_MASK_DEFAULT;
+	deck_waste_mask = DECK_WASTE_MASK_DEFAULT;
 }
 
 Pyramid::Pyramid(Pyramid *_pyramid) {
@@ -97,27 +112,50 @@ Pyramid::Pyramid(Pyramid *_pyramid) {
 	top_waste = _pyramid->top_waste;
 	total_reset_deck = _pyramid->total_reset_deck;
 	pyramid_mask = _pyramid->pyramid_mask;
+	deck_waste_mask = _pyramid->deck_waste_mask;
 }
 
 // Destructor
 Pyramid::~Pyramid() {}
 
 // Functions
+// Get state of pyramid
+State Pyramid::get_state() {
+	State current_state;
+	current_state.pyramid_mask = pyramid_mask;
+	current_state.deck_waste_mask = deck_waste_mask;
+	current_state.top_deck_index = top_deck;
+	current_state.top_waste_index = top_waste;
+	current_state.total_reset_deck_count = total_reset_deck;
+	return current_state;
+}
+
 // Get local pyramid mask
 int Pyramid::get_local_pyramid_mask() {
 	return pyramid_mask;
 }
 
+// Get local deck waste mask
+int Pyramid::get_local_deck_waste_mask() {
+	return deck_waste_mask;
+}
+
 // Retrieves the card on the top of the deck
-char Pyramid::get_top_deck_card() {
-	if(top_deck == NO_CARD) return '-';
-	return get_card(pyramid[top_deck]);
+char Pyramid::get_top_deck_card(int mask, int top_deck_index) {
+	if(mask == NO_MASK) mask = deck_waste_mask;
+	if(top_deck_index == NO_CARD_INDEX) top_deck_index = top_deck;
+	
+	if(top_deck_index == NO_CARD || !get_deck_waste_mask_value(top_deck_index, mask)) return '-';
+	return get_card(pyramid[top_deck_index]);
 }
 
 // Retrieves the card on the top of the waste
-char Pyramid::get_top_waste_card() {
-	if(top_waste == NO_CARD) return '-';
-	return get_card(pyramid[top_waste]);
+char Pyramid::get_top_waste_card(int mask, int top_waste_index) {
+	if(mask == NO_MASK) mask = deck_waste_mask;
+	if(top_waste_index == NO_CARD_INDEX) top_waste_index = top_waste;
+	
+	if(top_waste_index == NO_CARD || !get_deck_waste_mask_value(top_waste_index, mask)) return '-';
+	return get_card(pyramid[top_waste_index]);
 }
 
 // Retrieves the cards on pyramid
@@ -137,16 +175,20 @@ char * Pyramid::get_pyramid(int mask) {
 // Draw a card from deck
 // If the deck is empty, the cards in the waste
 // is going back to deck in order
-void Pyramid::draw_deck() {
+void Pyramid::draw_deck(int mask, int *top_deck_index, int *top_waste_index, int *total_reset_deck_count) {
+	if(mask == NO_MASK) mask = deck_waste_mask;
+	if(top_deck_index == NULL) top_deck_index = &top_deck;
+	if(top_waste_index == NULL) top_waste_index = &top_waste;
+	if(total_reset_deck_count == NULL) total_reset_deck_count = &total_reset_deck;
 	int temporary;
-	if(top_deck == NO_CARD) {
-		top_deck = next(TOTAL_PYRAMID_CARDS - 1);
-		top_waste = NO_CARD;
-		total_reset_deck++;
+	if(*top_deck_index == NO_CARD) {
+		*top_deck_index = next(TOTAL_PYRAMID_CARDS - 1, mask);
+		*top_waste_index = NO_CARD;
+		*total_reset_deck_count++;
 	} else {
-		temporary = next(top_deck);
-		top_waste = top_deck;
-		top_deck = temporary;
+		temporary = next(*top_deck_index);
+		*top_waste_index = *top_deck_index;
+		*top_deck_index = temporary;
 	}
 }
 
@@ -162,55 +204,65 @@ bool Pyramid::pair_cards_in_pyramid(int row1, int col1, int row2, int col2, int 
 	index1 = row1 * (row1 + 1) / 2 + col1;
 	index2 = row2 * (row2 + 1) / 2 + col2;
 
-	if(get_mask(index1, *mask) && get_mask(index2, *mask) && pyramid[index1] + pyramid[index2] == 13) {
-		set_mask(index1);
-		set_mask(index2);
+	if(get_pyramid_mask_value(index1, *mask) && get_pyramid_mask_value(index2, *mask) && pyramid[index1] + pyramid[index2] == 13) {
+		set_pyramid_mask_value(index1, mask);
+		set_pyramid_mask_value(index2, mask);
 		return true;
 	} else return false;
 }
 
 // Pair card from top of deck and card from top of waste
-bool Pyramid::pair_cards_deck_and_waste() {
-	if(top_deck == NO_CARD || top_waste == NO_CARD) return false;
-	if(pyramid[top_deck] + pyramid[top_waste] == 13) {
-		pyramid[top_deck] = NO_CARD;
-		pyramid[top_waste] = NO_CARD;
-		top_deck = next(top_deck);
-		top_waste = previous(top_waste);
+bool Pyramid::pair_cards_deck_and_waste(int *mask, int *top_deck_index, int *top_waste_index) {
+	if(mask == NULL) mask = &deck_waste_mask;
+	if(top_deck_index == NULL) top_deck_index = &top_deck;
+	if(top_waste_index == NULL) top_waste_index = &top_waste;
+	
+	if(*top_deck_index == NO_CARD || *top_waste_index == NO_CARD) return false;
+	if(get_deck_waste_mask_value(*top_deck_index, *mask) && get_deck_waste_mask_value(*top_waste_index, *mask) && pyramid[*top_deck_index] + pyramid[*top_waste_index] == 13) {
+		set_deck_waste_mask_value(*top_deck_index, mask);
+		set_deck_waste_mask_value(*top_waste_index, mask);
+		*top_deck_index = next(*top_deck_index);
+		*top_waste_index = previous(*top_waste_index);
 		return true;
 	} else return false;
 }
 
 // Pair card from top of deck and card from pyramid
-bool Pyramid::pair_cards_deck_and_pyramid(int row, int col, int *mask) {
+bool Pyramid::pair_cards_deck_and_pyramid(int row, int col, int *mask, int *top_deck_index, int *deck_mask) {
 	if(mask == NULL) mask = &pyramid_mask;
+	if(top_deck_index == NULL) top_deck_index = &top_deck;
+	if(deck_mask == NULL) deck_mask = &deck_waste_mask;
+	
 	if(row > 7 || row < 1 || col > row || col < 1) return false;
-	if(top_deck == NO_CARD || check_covered(row, col, *mask)) return false;
+	if(*top_deck_index == NO_CARD || check_covered(row, col, *mask)) return false;
 	row--; col--;
 	int index;
 	index = row * (row + 1) / 2 + col;
 
-	if(get_mask(index, *mask) && pyramid[index] + pyramid[top_deck] == 13) {
-		set_mask(index);
-		pyramid[top_deck] = NO_CARD;
-		top_deck = next(top_deck);
+	if(get_pyramid_mask_value(index, *mask) && get_deck_waste_mask_value(*top_deck_index, *deck_mask) && pyramid[index] + pyramid[*top_deck_index] == 13) {
+		set_pyramid_mask_value(index, mask);
+		set_deck_waste_mask_value(*top_deck_index, deck_mask);
+		*top_deck_index = next(*top_deck_index);
 		return true;
 	} else return false;
 }
 
 // Pair card from top of waste and card from pyramid
-bool Pyramid::pair_cards_waste_and_pyramid(int row, int col, int *mask) {
+bool Pyramid::pair_cards_waste_and_pyramid(int row, int col, int *mask, int *top_waste_index, int *deck_mask) {
 	if(mask == NULL) mask = &pyramid_mask;
+	if(top_waste_index == NULL) top_waste_index = &top_waste;
+	if(deck_mask == NULL) deck_mask = &deck_waste_mask;
+
 	if(row > 7 || row < 1 || col > row || col < 1) return false;
-	if(top_waste == NO_CARD || check_covered(row, col, *mask)) return false;
+	if(*top_waste_index == NO_CARD || check_covered(row, col, *mask)) return false;
 	row--; col--;
 	int index;
 	index = row * (row + 1) / 2 + col;
 
-	if(get_mask(index, *mask) && pyramid[index] + pyramid[top_waste] == 13) {
-		set_mask(index);
-		pyramid[top_waste] = NO_CARD;
-		top_waste = previous(top_waste);
+	if(get_pyramid_mask_value(index, *mask) && get_deck_waste_mask_value(*top_waste_index, *deck_mask) && pyramid[index] + pyramid[*top_waste_index] == 13) {
+		set_pyramid_mask_value(index, mask);
+		set_deck_waste_mask_value(*top_waste_index, deck_mask);
+		*top_waste_index = previous(*top_waste_index);
 		return true;
 	} else return false;
 }
@@ -223,36 +275,47 @@ bool Pyramid::remove_king(int row, int col, int *mask) {
 	row--; col--;
 	int index;
 	index = row * (row + 1) / 2 + col;
-	if(get_mask(index, *mask) && pyramid[index] == 13) {
-		set_mask(index);
+	if(get_pyramid_mask_value(index, *mask) && pyramid[index] == 13) {
+		set_pyramid_mask_value(index, mask);
 		return true;
 	} else return false;
 }
 
 // Remove king from the top of the deck
-bool Pyramid::remove_king_from_deck() {
-	if(top_deck != NO_CARD && pyramid[top_deck] == 13) {
-		pyramid[top_deck] = NO_CARD;
-		top_deck = next(top_deck);
+bool Pyramid::remove_king_from_deck(int *mask, int *top_deck_index) {
+	if(mask == NULL) mask = &deck_waste_mask;
+	if(top_deck_index == NULL) top_deck_index = &top_deck;
+	
+	if(*top_deck_index != NO_CARD && get_deck_waste_mask_value(*top_deck_index, *mask) && pyramid[*top_deck_index] == 13) {
+		set_deck_waste_mask_value(*top_deck_index, mask);
+		*top_deck_index = next(*top_deck_index);
 		return true;
 	} else return false;
 }
 
 // Remove king from the top of the waste
-bool Pyramid::remove_king_from_waste() {
-	if(top_waste != NO_CARD && pyramid[top_waste] == 13) {
-		pyramid[top_waste] = NO_CARD;
-		top_waste = previous(top_waste);
+bool Pyramid::remove_king_from_waste(int *mask, int *top_waste_index) {
+	if(mask == NULL) mask = &deck_waste_mask;
+	if(top_waste_index == NULL) top_waste_index = &top_waste;
+
+	if(*top_waste_index != NO_CARD && get_deck_waste_mask_value(*top_waste_index, *mask) && pyramid[*top_waste_index] == 13) {
+		set_deck_waste_mask_value(*top_waste_index, mask);
+		*top_waste_index = previous(*top_waste_index);
 		return true;
 	} else return false;
 }
 
 // Get all possible actions
-std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actions(int mask) {
+std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actions(int mask, int deck_mask, int top_deck_index, int top_waste_index) {
+	if(mask == NO_MASK) mask = pyramid_mask;
+	if(deck_mask == NO_MASK) deck_mask = deck_waste_mask;
+	if(top_deck_index == NO_CARD_INDEX) top_deck_index = top_deck;
+	if(top_waste_index == NO_CARD_INDEX) top_waste_index = top_waste;
+	
 	int row, col, index;
 	std::vector< std::pair<int, int> > uncovered_card[TOTAL_POSSIBLE_UNCOVERED_CARDS + 1];
 	std::vector< std::pair<int, std::vector<int> > > actions;
-	if(!is_finished()) {
+	if(!is_finished(mask)) {
 		// Clear all uncovered card
 		for(int i = 0; i <= TOTAL_POSSIBLE_UNCOVERED_CARDS; i++)
 			uncovered_card[i].clear();
@@ -260,7 +323,7 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		for(row = 1; row <= TOTAL_ROW; row++) {
 			for(col = 1; col <= row; col++) {
 				index = (row - 1) * row / 2 + col - 1;
-				if(get_mask(index, mask) && !check_covered(row, col, mask)) {
+				if(get_pyramid_mask_value(index, mask) && !check_covered(row, col, mask)) {
 					//-----------------------
 					// Check King in pyramid
 					//-----------------------
@@ -283,7 +346,7 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		//---------------------------
 		// Check King on top of deck
 		//---------------------------
-		if(check_remove_king_from_deck()) {
+		if(check_remove_king_from_deck(deck_mask, top_deck_index)) {
 			std::vector<int> empty_vector;
 			actions.push_back(std::make_pair(ACTION_REMOVE_KING_ON_DECK, empty_vector));
 		}
@@ -291,7 +354,7 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		//---------------------------
 		// Check King on top of waste
 		//---------------------------
-		if(check_remove_king_from_waste()) {
+		if(check_remove_king_from_waste(deck_mask, top_waste_index)) {
 			std::vector<int> empty_vector;
 			actions.push_back(std::make_pair(ACTION_REMOVE_KING_ON_WASTE, empty_vector));
 		}
@@ -321,7 +384,7 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		//----------------------------------------------------------
 		// Check pair on top of deck with uncovered card in pyramid
 		//----------------------------------------------------------
-		if(get_top_deck_card() != '-') {
+		if(get_top_deck_card(deck_mask, top_deck_index) != '-') {
 			int pc = 13 - pyramid[top_deck];
 			for(int i = 0; i < uncovered_card[pc].size(); i++) {
 				std::vector<int> location;
@@ -334,20 +397,20 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		//----------------------------------------------------------
 		// Check pair on top of waste with uncovered card in pyramid
 		//----------------------------------------------------------
-		if(get_top_waste_card() != '-') {
+		if(get_top_waste_card(deck_mask, top_waste_index) != '-') {
 			int pc = 13 - pyramid[top_waste];
 			for(int i = 0; i < uncovered_card[pc].size(); i++) {
 				std::vector<int> location;
 				location.push_back(uncovered_card[pc][i].first);
 				location.push_back(uncovered_card[pc][i].second);
-				actions.push_back(std::make_pair(ACTION_PAIR_CARDS_PYRAMID, location));
+				actions.push_back(std::make_pair(ACTION_PAIR_CARD_PYRAMID_WASTE, location));
 			}
 		}
 
 		//----------------------------------------------------------
 		// Check pair on top of deck with waste
 		//----------------------------------------------------------
-		if(check_pair_cards_deck_and_waste()) {
+		if(check_pair_cards_deck_and_waste(deck_mask, top_deck_index, top_waste_index)) {
 			std::vector<int> empty_vector;
 			actions.push_back(std::make_pair(ACTION_PAIR_CARD_DECK_WASTE, empty_vector));
 		}
@@ -393,47 +456,61 @@ int Pyramid::check_pair(int mask) {
 
 // Check Pair 2 cards from pyramid
 bool Pyramid::check_pair_cards_in_pyramid(int row1, int col1, int row2, int col2, int mask) {
+	if(mask == NO_MASK) mask = pyramid_mask;
+
 	if(row1 == row2 && col1 == col2) return false;
 	if(row1 > 7 || row1 < 1 || col1 > row1 || col1 < 1) return false;
 	if(row2 > 7 || row2 < 1 || col2 > row2 || col2 < 1) return false;
-	if(check_covered(row1, col1) || check_covered(row2, col2)) return false; 
+	if(check_covered(row1, col1, mask) || check_covered(row2, col2, mask)) return false; 
 	row1--; col1--; row2--; col2--;
 	int index1, index2;
 	index1 = row1 * (row1 + 1) / 2 + col1;
 	index2 = row2 * (row2 + 1) / 2 + col2;
-	if(get_mask(index1, mask) && get_mask(index2, mask) && pyramid[index1] + pyramid[index2] == 13) {
+	if(get_pyramid_mask_value(index1, mask) && get_pyramid_mask_value(index2, mask) && pyramid[index1] + pyramid[index2] == 13) {
 		return true;
 	} else return false;
 }
 
 // Check Pair card from top of deck and card from top of waste
-bool Pyramid::check_pair_cards_deck_and_waste() {
-	if(top_deck == NO_CARD || top_waste == NO_CARD) return false;
-	if(pyramid[top_deck] + pyramid[top_waste] == 13) {
+bool Pyramid::check_pair_cards_deck_and_waste(int mask, int top_deck_index, int top_waste_index) {
+	if(mask == NO_MASK) mask = deck_waste_mask;
+	if(top_deck_index == NO_CARD_INDEX) top_deck_index = top_deck;
+	if(top_waste_index == NO_CARD_INDEX) top_waste_index = top_waste;
+	
+	if(top_deck_index == NO_CARD || top_waste_index == NO_CARD) return false;
+	if(get_deck_waste_mask_value(top_deck_index, mask) && get_deck_waste_mask_value(top_waste_index, mask) && pyramid[top_deck] + pyramid[top_waste] == 13) {
 		return true;
 	} else return false;
 }
 
 // Check Pair card from top of deck and card from pyramid
-bool Pyramid::check_pair_cards_deck_and_pyramid(int row, int col, int mask) {
+bool Pyramid::check_pair_cards_deck_and_pyramid(int row, int col, int mask, int top_deck_index, int deck_mask) {
+	if(mask == NO_MASK) mask = deck_waste_mask;
+	if(top_deck_index == NO_CARD_INDEX) top_deck_index = top_deck;
+	if(deck_mask = NO_MASK) deck_mask = deck_waste_mask;
+	
 	if(row > 7 || row < 1 || col > row || col < 1) return false;
-	if(top_deck == NO_CARD || check_covered(row, col)) return false;
+	if(top_deck_index == NO_CARD || check_covered(row, col, mask)) return false;
 	row--; col--;
 	int index;
 	index = row * (row + 1) / 2 + col;
-	if(get_mask(index, mask) && pyramid[index] + pyramid[top_deck] == 13) {
+	if(get_pyramid_mask_value(index, mask) && get_deck_waste_mask_value(top_deck_index, deck_mask) && pyramid[index] + pyramid[top_deck_index] == 13) {
 		return true;
 	} else return false;
 }
 
 // Check Pair card from top of waste and card from pyramid
-bool Pyramid::check_pair_cards_waste_and_pyramid(int row, int col, int mask) {
+bool Pyramid::check_pair_cards_waste_and_pyramid(int row, int col, int mask, int top_waste_index, int deck_mask) {
+	if(mask == NO_MASK) mask = deck_waste_mask;
+	if(top_waste_index == NO_CARD_INDEX) top_waste_index = top_waste;
+	if(deck_mask = NO_MASK) deck_mask = deck_waste_mask;
+
 	if(row > 7 || row < 1 || col > row || col < 1) return false;
-	if(top_waste == NO_CARD || check_covered(row, col)) return false;
+	if(top_waste_index == NO_CARD || check_covered(row, col, mask)) return false;
 	row--; col--;
 	int index;
 	index = row * (row + 1) / 2 + col;
-	if(get_mask(index, mask) && pyramid[index] + pyramid[top_waste] == 13) {
+	if(get_pyramid_mask_value(index, mask) && get_deck_waste_mask_value(top_waste_index, deck_mask) && pyramid[index] + pyramid[top_waste_index] == 13) {
 		return true;
 	} else return false;
 }
@@ -445,28 +522,35 @@ bool Pyramid::check_remove_king(int row, int col, int mask) {
 	row--; col--;
 	int index;
 	index = row * (row + 1) / 2 + col;
-	if(get_mask(index, mask) && pyramid[index] == 13) {
+	if(get_pyramid_mask_value(index, mask) && pyramid[index] == 13) {
 		return true;
 	} else return false;
 }
 
 // Check Remove king from the top of the deck
-bool Pyramid::check_remove_king_from_deck() {
-	if(top_deck != NO_CARD && pyramid[top_deck] == 13) {
+bool Pyramid::check_remove_king_from_deck(int mask, int top_deck_index) {
+	if(mask == NO_MASK) mask = deck_waste_mask;
+	if(top_deck_index == NO_CARD_INDEX) top_deck_index = top_deck;
+
+	if(top_deck_index != NO_CARD && get_deck_waste_mask_value(top_deck_index, mask) && pyramid[top_deck_index] == 13) {
 		return true;
 	} else return false;
 }
 
 // Check Remove king from the top of the waste
-bool Pyramid::check_remove_king_from_waste() {
-	if(top_waste != NO_CARD && pyramid[top_waste] == 13) {
+bool Pyramid::check_remove_king_from_waste(int mask, int top_waste_index) {
+	if(mask == NO_MASK) mask = deck_waste_mask;
+	if(top_waste_index == NO_CARD_INDEX) top_waste_index = top_waste;
+
+	if(top_waste_index != NO_CARD && get_deck_waste_mask_value(top_waste_index, mask) && pyramid[top_waste_index] == 13) {
 		return true;
 	} else return false;
 }
 
 // Obtain the status of the game
 // Finished when the total_reset_deck equals to 3
-bool Pyramid::is_finished() {
-	return total_reset_deck == 3;
+bool Pyramid::is_finished(int mask) {
+	if(mask == NO_MASK) mask = pyramid_mask;
+	return total_reset_deck == 3 || mask == 0;
 }
 
