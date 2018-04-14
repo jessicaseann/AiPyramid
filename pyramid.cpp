@@ -219,6 +219,114 @@ bool Pyramid::remove_king_from_waste() {
 	} else return false;
 }
 
+// Check if action valid
+int Pyramid::check_pair() {
+	int temp_i=0;
+	int temp_j=0;
+	
+	if(check_remove_king_from_deck()) return 3;
+	else if(check_remove_king_from_waste())return 4;
+	for (int i=7; i>=1;i--){
+		for(int j=i;j>=1;j--){
+			i--;j--;
+			int post = i * (i + 1) / 2 + j;
+			//std::cout<<"Check "<<get_card(pyramid[post])<<"\n";
+			i++;j++;
+			if(!check_covered(i,j)){
+				if(get_card(pyramid[post])=='K') return 2;
+				if(temp_i==0 && temp_j==0){
+					temp_i=i;
+					temp_j=j;
+					for (int m=7; m>=1;m--){
+						for(int n=7;n>=1;n--){
+							if(!check_covered(m,n))
+								if(check_pair_cards_in_pyramid(temp_i,temp_j,m,n)) return 5;
+						}
+					}
+				if(check_pair_cards_deck_and_pyramid(temp_i,temp_j)) return 6;
+				if(check_pair_cards_waste_and_pyramid(temp_i,temp_j)) return 7;
+				temp_i=0;
+				temp_j=0;		
+				}
+			}	
+		}
+	}
+	if(check_pair_cards_deck_and_waste())return 8;
+	else return 1;
+}
+
+// Check Pair 2 cards from pyramid
+bool Pyramid::check_pair_cards_in_pyramid(int row1, int col1, int row2, int col2) {
+	if(row1 == row2 && col1 == col2) return false;
+	if(row1 > 7 || row1 < 1 || col1 > row1 || col1 < 1) return false;
+	if(row2 > 7 || row2 < 1 || col2 > row2 || col2 < 1) return false;
+	if(check_covered(row1, col1) || check_covered(row2, col2)) return false; 
+	row1--; col1--; row2--; col2--;
+	int index1, index2;
+	index1 = row1 * (row1 + 1) / 2 + col1;
+	index2 = row2 * (row2 + 1) / 2 + col2;
+	if(pyramid[index1] + pyramid[index2] == 13) {
+		return true;
+	} else return false;
+}
+
+// Check Pair card from top of deck and card from top of waste
+bool Pyramid::check_pair_cards_deck_and_waste() {
+	if(pyramid[top_deck] + pyramid[top_waste] == 13) {
+		return true;
+	} else return false;
+}
+
+// Check Pair card from top of deck and card from pyramid
+bool Pyramid::check_pair_cards_deck_and_pyramid(int row, int col) {
+	if(row > 7 || row < 1 || col > row || col < 1) return false;
+	if(top_deck == NO_CARD || check_covered(row, col)) return false;
+	row--; col--;
+	int index;
+	index = row * (row + 1) / 2 + col;
+	if(pyramid[index] + pyramid[top_deck] == 13) {
+		return true;
+	} else return false;
+}
+
+// Check Pair card from top of waste and card from pyramid
+bool Pyramid::check_pair_cards_waste_and_pyramid(int row, int col) {
+	if(row > 7 || row < 1 || col > row || col < 1) return false;
+	if(top_waste == NO_CARD || check_covered(row, col)) return false;
+	row--; col--;
+	int index;
+	index = row * (row + 1) / 2 + col;
+	if(pyramid[index] + pyramid[top_waste] == 13) {
+		return true;
+	} else return false;
+}
+
+// Check Remove king from the pyramid
+bool Pyramid::check_remove_king(int row, int col) {
+	if(row > 7 || row < 1 || col > row || col < 1) return false;
+	if(check_covered(row, col)) return false;
+	row--; col--;
+	int index;
+	index = row * (row + 1) / 2 + col;
+	if(pyramid[index] == 13) {
+		return true;
+	} else return false;
+}
+
+// Check Remove king from the top of the deck
+bool Pyramid::check_remove_king_from_deck() {
+	if(top_deck != NO_CARD && pyramid[top_deck] == 13) {
+		return true;
+	} else return false;
+}
+
+// Check Remove king from the top of the waste
+bool Pyramid::check_remove_king_from_waste() {
+	if(top_waste != NO_CARD && pyramid[top_waste] == 13) {
+		return true;
+	} else return false;
+}
+
 // Obtain the status of the game
 // Finished when the total_reset_deck equals to 3
 bool Pyramid::is_finished() {

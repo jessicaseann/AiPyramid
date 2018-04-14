@@ -76,6 +76,8 @@ void print_rule() {
 
 void user_input_command(Pyramid *pyramid) {
 	int command;
+	int command2 = pyramid->check_pair();
+	cout << "Recommend: "<<command2<<endl;
 	cout << "Please input command number in range of 1 to 8:" << endl;
 	cin >> command;
 

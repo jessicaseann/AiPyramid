@@ -61,6 +61,24 @@ class Pyramid
 	bool remove_king_from_deck();
 	// Remove king from the top of the waste
 	bool remove_king_from_waste();
+	
+	// Check any card to pair Action
+	int check_pair();
+	// Check Pair 2 cards from pyramid
+	bool check_pair_cards_in_pyramid(int row1, int col1, int row2, int col2);
+	// Check Pair card from top of deck and card from top of waste
+	bool check_pair_cards_deck_and_waste();
+	// Check Pair card from top of deck and card from pyramid
+	bool check_pair_cards_deck_and_pyramid(int row, int col);
+	// Check Pair card from top of waste and card from pyramid
+	bool check_pair_cards_waste_and_pyramid(int row, int col);
+	// Check Remove king from the pyramid
+	bool check_remove_king(int row, int col);
+	// Check Remove king from the top of the deck
+	bool check_remove_king_from_deck();
+	// Check Remove king from the top of the waste
+	bool check_remove_king_from_waste();
+	
 	// Obtain the status of the game
 	// Finished when the total_reset_deck equals to 3
 	bool is_finished();
