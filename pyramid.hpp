@@ -4,6 +4,7 @@
 //--- Include dependencies ---
 #include <stdlib.h>
 #include <vector>
+#include <utility>
 //----------------------------
 
 
@@ -43,12 +44,25 @@ class Pyramid
 	static const int NO_CARD_MASK = 0;
 	static const int PYRAMID_MASK_DEFAULT = (1 << TOTAL_PYRAMID_CARDS) - 1;
 	static const int DECK_WASTE_MASK_DEFAULT = (1 << (TOTAL_CARDS - TOTAL_PYRAMID_CARDS)) - 1;
+	static const int TOTAL_ROW = 7;
+	// Action Constants
+	static const int ACTION_DRAW = 1;
+	static const int ACTION_REMOVE_KING_IN_PYRAMID = 2;
+	static const int ACTION_REMOVE_KING_ON_DECK = 3;
+	static const int ACTION_REMOVE_KING_ON_WASTE = 4;
+	static const int ACTION_PAIR_CARDS_PYRAMID = 5;
+	static const int ACTION_PAIR_CARD_PYRAMID_DECK = 6;
+	static const int ACTION_PAIR_CARD_PYRAMID_WASTE = 7;
+	static const int ACTION_PAIR_CARD_DECK_WASTE = 8;
+	
 	// Constructor
 	Pyramid();
 	Pyramid(Pyramid *pyramid);
 	// Destructor
 	~Pyramid();
 	// Functions
+	// Get local pyramid mask
+	int get_local_pyramid_mask();
 	// Retrieves the card on the top of the deck
 	char get_top_deck_card();
 	// Retrieves the card on the top of the waste
@@ -75,7 +89,7 @@ class Pyramid
 	bool remove_king_from_waste();
 	
 	// Get all possible actions
-	std::vector<int> get_all_possible_action(int mask = NO_MASK);
+	std::vector< std::pair<int, std::vector<int> > > get_all_possible_actions(int mask = NO_MASK);
 	// Check any card to pair Action
 	int check_pair(int mask = NO_MASK);
 	// Check Pair 2 cards from pyramid

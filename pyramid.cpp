@@ -52,7 +52,6 @@ bool Pyramid::check_covered(int row, int col, int mask) {
 	if(mask == NO_MASK) mask = pyramid_mask;
 	int index;
 	index = row * (row + 1) / 2 + col - 1;
-	std::cout << "Index check_covered: " << index << std::endl;
 	return get_mask(index) || get_mask(index + 1);
 }
 
@@ -104,6 +103,11 @@ Pyramid::Pyramid(Pyramid *_pyramid) {
 Pyramid::~Pyramid() {}
 
 // Functions
+// Get local pyramid mask
+int Pyramid::get_local_pyramid_mask() {
+	return pyramid_mask;
+}
+
 // Retrieves the card on the top of the deck
 char Pyramid::get_top_deck_card() {
 	if(top_deck == NO_CARD) return '-';
@@ -167,6 +171,7 @@ bool Pyramid::pair_cards_in_pyramid(int row1, int col1, int row2, int col2, int 
 
 // Pair card from top of deck and card from top of waste
 bool Pyramid::pair_cards_deck_and_waste() {
+	if(top_deck == NO_CARD || top_waste == NO_CARD) return false;
 	if(pyramid[top_deck] + pyramid[top_waste] == 13) {
 		pyramid[top_deck] = NO_CARD;
 		pyramid[top_waste] = NO_CARD;
@@ -243,7 +248,111 @@ bool Pyramid::remove_king_from_waste() {
 }
 
 // Get all possible actions
-std::vector<int> Pyramid::get_all_possible_action(int mask) {
+std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actions(int mask) {
+	int row, col, index;
+	std::vector< std::pair<int, int> > uncovered_card[TOTAL_POSSIBLE_UNCOVERED_CARDS + 1];
+	std::vector< std::pair<int, std::vector<int> > > actions;
+	if(!is_finished()) {
+		// Clear all uncovered card
+		for(int i = 0; i <= TOTAL_POSSIBLE_UNCOVERED_CARDS; i++)
+			uncovered_card[i].clear();
+
+		for(row = 1; row <= TOTAL_ROW; row++) {
+			for(col = 1; col <= row; col++) {
+				index = (row - 1) * row / 2 + col - 1;
+				if(get_mask(index, mask) && !check_covered(row, col, mask)) {
+					//-----------------------
+					// Check King in pyramid
+					//-----------------------
+					if(check_remove_king(row, col, mask)) {
+						std::vector<int> location;
+						location.push_back(row);
+						location.push_back(col);
+						actions.push_back(std::make_pair(ACTION_REMOVE_KING_IN_PYRAMID, location));
+					}
+					//------------------------------------
+					// Get all uncovered card except King
+					//------------------------------------
+					else {
+						uncovered_card[pyramid[index]].push_back(std::make_pair(row, col));
+					}
+				}
+			}
+		}
+
+		//---------------------------
+		// Check King on top of deck
+		//---------------------------
+		if(check_remove_king_from_deck()) {
+			std::vector<int> empty_vector;
+			actions.push_back(std::make_pair(ACTION_REMOVE_KING_ON_DECK, empty_vector));
+		}
+
+		//---------------------------
+		// Check King on top of waste
+		//---------------------------
+		if(check_remove_king_from_waste()) {
+			std::vector<int> empty_vector;
+			actions.push_back(std::make_pair(ACTION_REMOVE_KING_ON_WASTE, empty_vector));
+		}
+		
+		//----------------------------------------------------------
+		// Check pair of uncovered cards in pyramid
+		//----------------------------------------------------------
+		int check_size = TOTAL_POSSIBLE_UNCOVERED_CARDS / 2;
+		std::vector< std::pair<int, int> >::iterator fc, sc;
+		for(int i = 1; i <= check_size; i++) {
+			int pc = 13 - i;
+			if(uncovered_card[i].size() > 0 && uncovered_card[pc].size() > 0) {
+				std::vector<int> location;
+				for(fc = uncovered_card[i].begin(); fc != uncovered_card[i].end(); fc++) {
+					for(sc = uncovered_card[pc].begin(); sc != uncovered_card[pc].end(); sc++) {
+						location.clear();
+						location.push_back(fc->first);
+						location.push_back(fc->second);
+						location.push_back(sc->first);
+						location.push_back(sc->second);
+						actions.push_back(std::make_pair(ACTION_PAIR_CARDS_PYRAMID, location));
+					}
+				}
+			}
+		}
+
+		//----------------------------------------------------------
+		// Check pair on top of deck with uncovered card in pyramid
+		//----------------------------------------------------------
+		if(get_top_deck_card() != '-') {
+			int pc = 13 - pyramid[top_deck];
+			for(int i = 0; i < uncovered_card[pc].size(); i++) {
+				std::vector<int> location;
+				location.push_back(uncovered_card[pc][i].first);
+				location.push_back(uncovered_card[pc][i].second);
+				actions.push_back(std::make_pair(ACTION_PAIR_CARD_PYRAMID_DECK, location));
+			}
+		}
+
+		//----------------------------------------------------------
+		// Check pair on top of waste with uncovered card in pyramid
+		//----------------------------------------------------------
+		if(get_top_waste_card() != '-') {
+			int pc = 13 - pyramid[top_waste];
+			for(int i = 0; i < uncovered_card[pc].size(); i++) {
+				std::vector<int> location;
+				location.push_back(uncovered_card[pc][i].first);
+				location.push_back(uncovered_card[pc][i].second);
+				actions.push_back(std::make_pair(ACTION_PAIR_CARDS_PYRAMID, location));
+			}
+		}
+
+		//----------------------------------------------------------
+		// Check pair on top of deck with waste
+		//----------------------------------------------------------
+		if(check_pair_cards_deck_and_waste()) {
+			std::vector<int> empty_vector;
+			actions.push_back(std::make_pair(ACTION_PAIR_CARD_DECK_WASTE, empty_vector));
+		}
+	}
+	return actions;
 }
 
 // Check if action valid
@@ -299,6 +408,7 @@ bool Pyramid::check_pair_cards_in_pyramid(int row1, int col1, int row2, int col2
 
 // Check Pair card from top of deck and card from top of waste
 bool Pyramid::check_pair_cards_deck_and_waste() {
+	if(top_deck == NO_CARD || top_waste == NO_CARD) return false;
 	if(pyramid[top_deck] + pyramid[top_waste] == 13) {
 		return true;
 	} else return false;

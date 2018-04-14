@@ -1,11 +1,15 @@
 #include <iostream>
 #include <stdlib.h>
+#include <vector>
+#include <utility>
+#include <cassert>
 #include "pyramid.hpp"
 using namespace std;
 
 void print_game(Pyramid *pyramid);
 void print_rule();
 void user_input_command(Pyramid *pyramid);
+void print_all_valid_moves(Pyramid *pyramid);
 
 int main() {
 	Pyramid pyramid;
@@ -14,6 +18,8 @@ int main() {
 		system("cls");
 		print_game(&pyramid);
 		print_rule();
+		cout << "RECOMMENDATIONS:" << endl;
+		print_all_valid_moves(&pyramid);
 		user_input_command(&pyramid);
 		cin.get();
 		cin.get();
@@ -78,8 +84,6 @@ void print_rule() {
 
 void user_input_command(Pyramid *pyramid) {
 	int command;
-	int command2 = pyramid->check_pair();
-	cout << "Recommend: "<<command2<<endl;
 	cout << "Please input command number in range of 1 to 8:" << endl;
 	cin >> command;
 
@@ -164,6 +168,50 @@ void user_input_command(Pyramid *pyramid) {
 		}
 		default: {
 			cout << "Wrong command number. Please input a number in range 1 - 8" << endl;
+		}
+	}
+}
+
+void print_all_valid_moves(Pyramid *pyramid) {
+	vector< pair<int, vector<int> > > moves = pyramid->get_all_possible_actions();
+	vector< pair<int, vector<int> > >::iterator it;
+	for(it = moves.begin(); it != moves.end(); it++) {
+		cout << "- ";
+		switch(it->first) {
+			case Pyramid::ACTION_DRAW:
+				assert(it->second.size() == 0);
+				cout << "(1) Draw" << endl;
+				break;
+			case Pyramid::ACTION_REMOVE_KING_IN_PYRAMID:
+				assert(it->second.size() == 2);
+				cout << "(2) Remove king in pyramid\n  === row: " << it->second[0] << ", col: " << it->second[1] << endl;
+				break;
+			case Pyramid::ACTION_REMOVE_KING_ON_DECK:
+				assert(it->second.size() == 0);
+				cout << "(3) Remove king on top of deck" << endl;
+				break;
+			case Pyramid::ACTION_REMOVE_KING_ON_WASTE:
+				assert(it->second.size() == 0);
+				cout << "(4) Remove king on top of waste" << endl;
+				break;
+			case Pyramid::ACTION_PAIR_CARDS_PYRAMID:
+				assert(it->second.size() == 4);
+				cout << "(5) Pair cards in pyramid | row1: " << it->second[0] << ", col1: " << it->second[1] << endl;
+				cout << "                            | row2: " << it->second[2] << ", col2: " << it->second[3] << endl;
+				break;
+			case Pyramid::ACTION_PAIR_CARD_PYRAMID_DECK:
+				assert(it->second.size() == 2);
+				cout << "(6) Pair card in pyramid with top of deck\n  === row: " << it->second[0] << ", col: " << it->second[1] << endl;
+				break;
+			case Pyramid::ACTION_PAIR_CARD_PYRAMID_WASTE:
+				assert(it->second.size() == 2);
+				cout << "(7) Pair card in pyramid with top of waste\n  === row: " << it->second[0] << ", col: " << it->second[1] << endl;
+				break;
+			case Pyramid::ACTION_PAIR_CARD_DECK_WASTE:
+				assert(it->second.size() == 0);
+				cout << "(7) Pair card on top of deck with top of waste" << endl;
+				break;
+			default: break;
 		}
 	}
 }
