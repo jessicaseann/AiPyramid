@@ -71,6 +71,8 @@ void print_rule() {
 	cout << "| 6. Pair card in pyramid with top deck          |" << endl;
 	cout << "| 7. Pair card in pyramid with top waste         |" << endl;
 	cout << "| 8. Pair card on top deck with top waste        |" << endl;
+	cout << "|                                                |" << endl;
+	cout << "| # Enter -1 in row and column to change command |" << endl;
 	cout << "+------------------------------------------------+" << endl;
 }
 
@@ -92,7 +94,7 @@ void user_input_command(Pyramid *pyramid) {
 			cout << "Remove king in pyramid" << endl;
 			cout << "Enter row: "; cin >> r;
 			cout << "Enter column: "; cin >> c;
-			while(!pyramid->remove_king(r, c)) {
+			while(!(r == -1 && c == -1) && !pyramid->remove_king(r, c)) {
 				cout << "Wrong input, please input again!" << endl;
 				cout << "Enter row: "; cin >> r;
 				cout << "Enter column: "; cin >> c;
@@ -120,7 +122,7 @@ void user_input_command(Pyramid *pyramid) {
 			cout << "Enter first column: "; cin >> c1;
 			cout << "Enter first row: "; cin >> r2;
 			cout << "Enter first column: "; cin >> c2;
-			while(!pyramid->pair_cards_in_pyramid(r1, c1, r2, c2)) {
+			while(!(r1 == -1 && c1 == -1) && !pyramid->pair_cards_in_pyramid(r1, c1, r2, c2)) {
 				cout << "Wrong input, please input again!" << endl;
 				cout << "Enter first row: "; cin >> r1;
 				cout << "Enter first column: "; cin >> c1;
@@ -134,7 +136,7 @@ void user_input_command(Pyramid *pyramid) {
 			cout << "Pair card in pyramid with top deck" << endl;
 			cout << "Enter row: "; cin >> r;
 			cout << "Enter column: "; cin >> c;
-			while(!pyramid->pair_cards_deck_and_pyramid(r, c)) {
+			while(!(r == -1 && c == -1) && !pyramid->pair_cards_deck_and_pyramid(r, c)) {
 				cout << "Wrong input, please input again!" << endl;
 				cout << "Enter row: "; cin >> r;
 				cout << "Enter column: "; cin >> c;
@@ -146,7 +148,7 @@ void user_input_command(Pyramid *pyramid) {
 			cout << "Pair card in pyramid with top waste" << endl;
 			cout << "Enter row: "; cin >> r;
 			cout << "Enter column: "; cin >> c;
-			while(!pyramid->pair_cards_waste_and_pyramid(r, c)) {
+			while(!(r == -1 && c == -1) && !pyramid->pair_cards_waste_and_pyramid(r, c)) {
 				cout << "Wrong input, please input again!" << endl;
 				cout << "Enter row: "; cin >> r;
 				cout << "Enter column: "; cin >> c;

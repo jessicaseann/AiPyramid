@@ -2,7 +2,8 @@
 #define __PYRAMID__
 
 //--- Include dependencies ---
-//----   NOT NEEDED YET   ----
+#include <stdlib.h>
+#include <vector>
 //----------------------------
 
 
@@ -16,6 +17,9 @@ class Pyramid
 	int top_waste;
 	// How many times the deck is reset
 	int total_reset_deck;
+	// Current mask
+	int pyramid_mask;
+	int deck_waste_mask;
 	// Retrieves the card
 	char get_card(int representation);
 	// Previous card
@@ -23,7 +27,11 @@ class Pyramid
 	// Next card
 	int next(int index);
 	// Check card on row and col is covered or not
-	bool check_covered(int row, int col);
+	bool check_covered(int row, int col, int mask = NO_MASK);
+	// Set pyramid mask
+	void set_mask(int n, int *mask = NULL, bool bit_value = NO_CARD_MASK);
+	// Get pyramid mask
+	bool get_mask(int n, int mask = NO_MASK);
 	
 	public:
 	// Constants
@@ -31,6 +39,10 @@ class Pyramid
 	static const int TOTAL_PYRAMID_CARDS = 28;
 	static const int TOTAL_CARDS = 52;
 	static const int TOTAL_POSSIBLE_UNCOVERED_CARDS = 13;
+	static const int NO_MASK = -1;
+	static const int NO_CARD_MASK = 0;
+	static const int PYRAMID_MASK_DEFAULT = (1 << TOTAL_PYRAMID_CARDS) - 1;
+	static const int DECK_WASTE_MASK_DEFAULT = (1 << (TOTAL_CARDS - TOTAL_PYRAMID_CARDS)) - 1;
 	// Constructor
 	Pyramid();
 	Pyramid(Pyramid *pyramid);
@@ -42,38 +54,40 @@ class Pyramid
 	// Retrieves the card on the top of the waste
 	char get_top_waste_card();
 	// Retrieves the cards on pyramid
-	char * get_pyramid();
+	char * get_pyramid(int mask = NO_MASK);
 	// Draw a card from deck
 	// If the deck is empty, the cards in the waste
 	// is going back to deck in order
 	void draw_deck();
 	// Pair 2 cards from pyramid
-	bool pair_cards_in_pyramid(int row1, int col1, int row2, int col2);
+	bool pair_cards_in_pyramid(int row1, int col1, int row2, int col2, int *mask = NULL);
 	// Pair card from top of deck and card from top of waste
 	bool pair_cards_deck_and_waste();
 	// Pair card from top of deck and card from pyramid
-	bool pair_cards_deck_and_pyramid(int row, int col);
+	bool pair_cards_deck_and_pyramid(int row, int col, int *mask = NULL);
 	// Pair card from top of waste and card from pyramid
-	bool pair_cards_waste_and_pyramid(int row, int col);
+	bool pair_cards_waste_and_pyramid(int row, int col, int *mask = NULL);
 	// Remove king from the pyramid
-	bool remove_king(int row, int col);
+	bool remove_king(int row, int col, int *mask = NULL);
 	// Remove king from the top of the deck
 	bool remove_king_from_deck();
 	// Remove king from the top of the waste
 	bool remove_king_from_waste();
 	
+	// Get all possible actions
+	std::vector<int> get_all_possible_action(int mask = NO_MASK);
 	// Check any card to pair Action
-	int check_pair();
+	int check_pair(int mask = NO_MASK);
 	// Check Pair 2 cards from pyramid
-	bool check_pair_cards_in_pyramid(int row1, int col1, int row2, int col2);
+	bool check_pair_cards_in_pyramid(int row1, int col1, int row2, int col2, int mask = NO_MASK);
 	// Check Pair card from top of deck and card from top of waste
 	bool check_pair_cards_deck_and_waste();
 	// Check Pair card from top of deck and card from pyramid
-	bool check_pair_cards_deck_and_pyramid(int row, int col);
+	bool check_pair_cards_deck_and_pyramid(int row, int col, int mask = NO_MASK);
 	// Check Pair card from top of waste and card from pyramid
-	bool check_pair_cards_waste_and_pyramid(int row, int col);
+	bool check_pair_cards_waste_and_pyramid(int row, int col, int mask = NO_MASK);
 	// Check Remove king from the pyramid
-	bool check_remove_king(int row, int col);
+	bool check_remove_king(int row, int col, int mask = NO_MASK);
 	// Check Remove king from the top of the deck
 	bool check_remove_king_from_deck();
 	// Check Remove king from the top of the waste
