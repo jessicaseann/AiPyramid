@@ -13,10 +13,17 @@ void user_input_command(Pyramid *pyramid);
 void print_all_valid_moves(Pyramid *pyramid);
 
 int main() {
-	Pyramid pyramid;
+	int cards[Pyramid::TOTAL_CARDS];
+	cout << "Input pyramid and deck: " << endl;
+	for(int i = 0; i < Pyramid::TOTAL_CARDS; i++) cin >> cards[i];
 
-	while(true) {
-		system("cls");
+	Pyramid pyramid(cards);
+	vector< pair<int, vector<int> > > actions_taken;
+	BFSPyramid solver;
+	bool solvable = solver.bfs(&pyramid, &actions_taken);
+
+	while(!pyramid.is_finished()) {
+		cout << solvable << " = " << (solvable? "CAN WIN" : "IMPOSSIBLE") << endl;
 		print_game(&pyramid);
 		print_rule();
 		cout << "RECOMMENDATIONS:" << endl;
@@ -24,6 +31,7 @@ int main() {
 		user_input_command(&pyramid);
 		cin.get();
 		cin.get();
+		system("cls");
 	}
 
 	return 0;

@@ -65,6 +65,7 @@ class Pyramid
 	// Constructor
 	Pyramid();
 	Pyramid(Pyramid *pyramid);
+	Pyramid(int *pyramid_and_deck);
 	// Destructor
 	~Pyramid();
 	// Functions
@@ -100,7 +101,7 @@ class Pyramid
 	bool remove_king_from_waste(int *mask = NULL, int *top_waste_index = NULL);
 	
 	// Get all possible actions
-	std::vector< std::pair<int, std::vector<int> > > get_all_possible_actions(int mask = NO_MASK, int deck_mask = NO_MASK, int top_deck_index = NO_CARD_INDEX, int top_waste_index = NO_CARD_INDEX);
+	std::vector< std::pair<int, std::vector<int> > > get_all_possible_actions(int mask = NO_MASK, int deck_mask = NO_MASK, int top_deck_index = NO_CARD_INDEX, int top_waste_index = NO_CARD_INDEX, int total_reset_deck_count = NO_CARD_INDEX);
 	// Check any card to pair Action
 	int check_pair(int mask = NO_MASK);
 	// Check Pair 2 cards from pyramid
@@ -120,7 +121,7 @@ class Pyramid
 	
 	// Obtain the status of the game
 	// Finished when the total_reset_deck equals to 3
-	bool is_finished(int mask = NO_MASK);
+	bool is_finished(int mask = NO_MASK, int total_reset_deck_count = NO_CARD_INDEX);
 };
 
 #endif

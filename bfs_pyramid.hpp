@@ -4,13 +4,16 @@
 #include "pyramid.hpp"
 #include "state.hpp"
 #include <queue>
+#include <vector>
+#include <utility>
+#include <set>
 
 class BFSPyramid
 {
-	void push_possible_actions(Pyramid *pyramid, std::queue<State> &process_state, State current_state);
+	void push_possible_actions(Pyramid *pyramid, std::queue<State> *process_state, const State &current_state, int index, std::vector< std::pair<int, std::pair<int, std::vector<int> > > > *actions_taken = NULL);
 	
 	public:
-	bool bfs(Pyramid *pyramid);
+	bool bfs(Pyramid *pyramid, std::vector< std::pair<int, std::vector<int> > > *actions_taken_result = NULL);
 };
 
 #endif

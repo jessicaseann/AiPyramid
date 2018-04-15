@@ -83,7 +83,7 @@ bool Pyramid::get_deck_waste_mask_value(int n, int mask) {
 
 // Constructor
 Pyramid::Pyramid() {
-	srand(time(NULL));
+	srand(time(NULL) * time(NULL));
 	int cards[13], no_cards = 0, c, card_rep;
 	for(int i=0; i<13; i++) cards[i] = 4;
 
@@ -113,6 +113,15 @@ Pyramid::Pyramid(Pyramid *_pyramid) {
 	total_reset_deck = _pyramid->total_reset_deck;
 	pyramid_mask = _pyramid->pyramid_mask;
 	deck_waste_mask = _pyramid->deck_waste_mask;
+}
+
+Pyramid::Pyramid(int *pyramid_and_deck) {
+	for(int i=0; i<TOTAL_CARDS; i++) pyramid[i] = pyramid_and_deck[i];
+	top_deck = TOTAL_PYRAMID_CARDS;
+	top_waste = NO_CARD;
+	total_reset_deck = 0;
+	pyramid_mask = PYRAMID_MASK_DEFAULT;
+	deck_waste_mask = DECK_WASTE_MASK_DEFAULT;
 }
 
 // Destructor
@@ -184,7 +193,7 @@ void Pyramid::draw_deck(int mask, int *top_deck_index, int *top_waste_index, int
 	if(*top_deck_index == NO_CARD) {
 		*top_deck_index = next(TOTAL_PYRAMID_CARDS - 1, mask);
 		*top_waste_index = NO_CARD;
-		*total_reset_deck_count++;
+		(*total_reset_deck_count)++;
 	} else {
 		temporary = next(*top_deck_index);
 		*top_waste_index = *top_deck_index;
@@ -306,19 +315,22 @@ bool Pyramid::remove_king_from_waste(int *mask, int *top_waste_index) {
 }
 
 // Get all possible actions
-std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actions(int mask, int deck_mask, int top_deck_index, int top_waste_index) {
+std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actions(int mask, int deck_mask, int top_deck_index, int top_waste_index, int total_reset_deck_count) {
 	if(mask == NO_MASK) mask = pyramid_mask;
 	if(deck_mask == NO_MASK) deck_mask = deck_waste_mask;
 	if(top_deck_index == NO_CARD_INDEX) top_deck_index = top_deck;
 	if(top_waste_index == NO_CARD_INDEX) top_waste_index = top_waste;
+	if(total_reset_deck_count == NO_CARD_INDEX) total_reset_deck_count = total_reset_deck;
 	
 	int row, col, index;
 	std::vector< std::pair<int, int> > uncovered_card[TOTAL_POSSIBLE_UNCOVERED_CARDS + 1];
 	std::vector< std::pair<int, std::vector<int> > > actions;
-	if(!is_finished(mask)) {
+	if(!is_finished(mask, total_reset_deck_count)) {
 		// Clear all uncovered card
 		for(int i = 0; i <= TOTAL_POSSIBLE_UNCOVERED_CARDS; i++)
 			uncovered_card[i].clear();
+
+		std::vector<int> empty_vector;
 
 		for(row = 1; row <= TOTAL_ROW; row++) {
 			for(col = 1; col <= row; col++) {
@@ -347,7 +359,6 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		// Check King on top of deck
 		//---------------------------
 		if(check_remove_king_from_deck(deck_mask, top_deck_index)) {
-			std::vector<int> empty_vector;
 			actions.push_back(std::make_pair(ACTION_REMOVE_KING_ON_DECK, empty_vector));
 		}
 
@@ -355,7 +366,6 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		// Check King on top of waste
 		//---------------------------
 		if(check_remove_king_from_waste(deck_mask, top_waste_index)) {
-			std::vector<int> empty_vector;
 			actions.push_back(std::make_pair(ACTION_REMOVE_KING_ON_WASTE, empty_vector));
 		}
 		
@@ -411,9 +421,13 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		// Check pair on top of deck with waste
 		//----------------------------------------------------------
 		if(check_pair_cards_deck_and_waste(deck_mask, top_deck_index, top_waste_index)) {
-			std::vector<int> empty_vector;
 			actions.push_back(std::make_pair(ACTION_PAIR_CARD_DECK_WASTE, empty_vector));
 		}
+
+		//----------------
+		// Draw from deck
+		//----------------
+		actions.push_back(std::make_pair(ACTION_DRAW, empty_vector));	
 	}
 	return actions;
 }
@@ -549,8 +563,10 @@ bool Pyramid::check_remove_king_from_waste(int mask, int top_waste_index) {
 
 // Obtain the status of the game
 // Finished when the total_reset_deck equals to 3
-bool Pyramid::is_finished(int mask) {
+bool Pyramid::is_finished(int mask, int total_reset_deck_count) {
 	if(mask == NO_MASK) mask = pyramid_mask;
-	return total_reset_deck == 3 || mask == 0;
+	if(total_reset_deck_count == NO_CARD_INDEX) total_reset_deck_count = total_reset_deck;
+	
+	return total_reset_deck_count == 3 || mask == 0;
 }
 
