@@ -414,6 +414,12 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 			std::vector<int> empty_vector;
 			actions.push_back(std::make_pair(ACTION_PAIR_CARD_DECK_WASTE, empty_vector));
 		}
+		
+		//----------------------------------------------------------
+		// Action draw card
+		//----------------------------------------------------------
+		std::vector<int> empty_vector;
+		actions.push_back(std::make_pair(ACTION_DRAW, empty_vector));
 	}
 	return actions;
 }
