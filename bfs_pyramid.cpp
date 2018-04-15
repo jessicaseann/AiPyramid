@@ -10,7 +10,9 @@
 void BFSPyramid::push_possible_actions(Pyramid *pyramid, std::queue<State> *process_state, const State &current_state, int index, std::vector< std::pair<int, std::pair<int, std::vector<int> > > > *actions_taken) {
 	std::vector< std::pair<int, std::vector<int> > > moves = pyramid->get_all_possible_actions(current_state.pyramid_mask, current_state.deck_waste_mask, current_state.top_deck_index, current_state.top_waste_index, current_state.total_reset_deck_count);
 	std::vector< std::pair<int, std::vector<int> > >::iterator it;
+//	system("cls");
 	std::cout << "Iteration #" << index << std::endl;
+/*	std::cout << "CURRENT STATE OF PYRAMID" << std::endl;
 	//###########################################
 	//##       P R I N T   P Y R A M I D       ##
 	//###########################################
@@ -30,7 +32,7 @@ void BFSPyramid::push_possible_actions(Pyramid *pyramid, std::queue<State> *proc
 	std::cout << "Top waste: " << pyramid->get_top_waste_card(current_state.deck_waste_mask, current_state.top_waste_index) << std::endl;
 	free(pyramid_cards);
 	//##########################################
-
+*/
 	for(it = moves.begin(); it != moves.end(); it++) {
 		State next_state(current_state);
 		//std::cout << "- ";
@@ -81,7 +83,7 @@ void BFSPyramid::push_possible_actions(Pyramid *pyramid, std::queue<State> *proc
 		process_state->push(next_state);
 		actions_taken->push_back(std::make_pair(index, *it));
 		
-		//###########################################
+/*		//###########################################
 		//##       P R I N T   P Y R A M I D       ##
 		//###########################################
 		pyramid_cards = pyramid->get_pyramid(next_state.pyramid_mask);
@@ -100,8 +102,8 @@ void BFSPyramid::push_possible_actions(Pyramid *pyramid, std::queue<State> *proc
 		std::cout << "Top waste: " << pyramid->get_top_waste_card(next_state.deck_waste_mask, next_state.top_waste_index) << std::endl;
 		free(pyramid_cards);
 		//##########################################
-
-		std::cin.get();
+*/
+		//std::cin.get();
 	}
 }
 

@@ -52,9 +52,8 @@ bool Pyramid::check_covered(int row, int col, int mask) {
 	if(row > 7 || row < 1 || col > row || col < 1) return true;
 	if(row == 7 && col <= row) return false;
 	if(mask == NO_MASK) mask = pyramid_mask;
-	int index;
-	index = row * (row + 1) / 2 + col - 1;
-	return get_pyramid_mask_value(index) || get_pyramid_mask_value(index + 1);
+	int index = row * (row + 1) / 2 + col - 1;
+	return get_pyramid_mask_value(index, mask) || get_pyramid_mask_value(index + 1, mask);
 }
 
 // Set pyramid mask
@@ -172,7 +171,7 @@ char * Pyramid::get_pyramid(int mask) {
 	char * pyramid_cards = (char *)malloc(sizeof(char) * TOTAL_PYRAMID_CARDS);
 	if(mask == NO_MASK) mask = pyramid_mask;
 	for(int i = 0; i < TOTAL_PYRAMID_CARDS; i++) {
-		if((mask >> (TOTAL_PYRAMID_CARDS - i - 1)) & 1) {
+		if(get_pyramid_mask_value(i, mask)) {
 			pyramid_cards[i] = get_card(pyramid[i]);
 		} else {
 			pyramid_cards[i] = get_card(NO_CARD);
@@ -189,13 +188,14 @@ void Pyramid::draw_deck(int mask, int *top_deck_index, int *top_waste_index, int
 	if(top_deck_index == NULL) top_deck_index = &top_deck;
 	if(top_waste_index == NULL) top_waste_index = &top_waste;
 	if(total_reset_deck_count == NULL) total_reset_deck_count = &total_reset_deck;
+	
 	int temporary;
 	if(*top_deck_index == NO_CARD) {
 		*top_deck_index = next(TOTAL_PYRAMID_CARDS - 1, mask);
 		*top_waste_index = NO_CARD;
 		(*total_reset_deck_count)++;
 	} else {
-		temporary = next(*top_deck_index);
+		temporary = next(*top_deck_index, mask);
 		*top_waste_index = *top_deck_index;
 		*top_deck_index = temporary;
 	}
@@ -395,7 +395,7 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		// Check pair on top of deck with uncovered card in pyramid
 		//----------------------------------------------------------
 		if(get_top_deck_card(deck_mask, top_deck_index) != '-') {
-			int pc = 13 - pyramid[top_deck];
+			int pc = 13 - pyramid[top_deck_index];
 			for(int i = 0; i < uncovered_card[pc].size(); i++) {
 				std::vector<int> location;
 				location.push_back(uncovered_card[pc][i].first);
@@ -408,7 +408,7 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		// Check pair on top of waste with uncovered card in pyramid
 		//----------------------------------------------------------
 		if(get_top_waste_card(deck_mask, top_waste_index) != '-') {
-			int pc = 13 - pyramid[top_waste];
+			int pc = 13 - pyramid[top_waste_index];
 			for(int i = 0; i < uncovered_card[pc].size(); i++) {
 				std::vector<int> location;
 				location.push_back(uncovered_card[pc][i].first);
@@ -492,7 +492,7 @@ bool Pyramid::check_pair_cards_deck_and_waste(int mask, int top_deck_index, int 
 	if(top_waste_index == NO_CARD_INDEX) top_waste_index = top_waste;
 	
 	if(top_deck_index == NO_CARD || top_waste_index == NO_CARD) return false;
-	if(get_deck_waste_mask_value(top_deck_index, mask) && get_deck_waste_mask_value(top_waste_index, mask) && pyramid[top_deck] + pyramid[top_waste] == 13) {
+	if(get_deck_waste_mask_value(top_deck_index, mask) && get_deck_waste_mask_value(top_waste_index, mask) && pyramid[top_deck_index] + pyramid[top_waste_index] == 13) {
 		return true;
 	} else return false;
 }
