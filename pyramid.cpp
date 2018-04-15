@@ -423,11 +423,11 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		if(check_pair_cards_deck_and_waste(deck_mask, top_deck_index, top_waste_index)) {
 			actions.push_back(std::make_pair(ACTION_PAIR_CARD_DECK_WASTE, empty_vector));
 		}
-
-		//----------------
-		// Draw from deck
-		//----------------
-		actions.push_back(std::make_pair(ACTION_DRAW, empty_vector));	
+		
+		//----------------------------------------------------------
+		// Action draw card
+		//----------------------------------------------------------
+		actions.push_back(std::make_pair(ACTION_DRAW, empty_vector));
 	}
 	return actions;
 }
