@@ -135,6 +135,7 @@ State Pyramid::get_state() {
 	current_state.top_deck_index = top_deck;
 	current_state.top_waste_index = top_waste;
 	current_state.total_reset_deck_count = total_reset_deck;
+	current_state.recalculate();
 	return current_state;
 }
 
@@ -330,8 +331,6 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		for(int i = 0; i <= TOTAL_POSSIBLE_UNCOVERED_CARDS; i++)
 			uncovered_card[i].clear();
 
-		std::vector<int> empty_vector;
-
 		for(row = 1; row <= TOTAL_ROW; row++) {
 			for(col = 1; col <= row; col++) {
 				index = (row - 1) * row / 2 + col - 1;
@@ -355,20 +354,6 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 			}
 		}
 
-		//---------------------------
-		// Check King on top of deck
-		//---------------------------
-		if(check_remove_king_from_deck(deck_mask, top_deck_index)) {
-			actions.push_back(std::make_pair(ACTION_REMOVE_KING_ON_DECK, empty_vector));
-		}
-
-		//---------------------------
-		// Check King on top of waste
-		//---------------------------
-		if(check_remove_king_from_waste(deck_mask, top_waste_index)) {
-			actions.push_back(std::make_pair(ACTION_REMOVE_KING_ON_WASTE, empty_vector));
-		}
-		
 		//----------------------------------------------------------
 		// Check pair of uncovered cards in pyramid
 		//----------------------------------------------------------
@@ -391,6 +376,22 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 			}
 		}
 
+		//---------------------------
+		// Check King on top of deck
+		//---------------------------
+		if(check_remove_king_from_deck(deck_mask, top_deck_index)) {
+			std::vector<int> empty_vector;
+			actions.push_back(std::make_pair(ACTION_REMOVE_KING_ON_DECK, empty_vector));
+		}
+
+		//---------------------------
+		// Check King on top of waste
+		//---------------------------
+		if(check_remove_king_from_waste(deck_mask, top_waste_index)) {
+			std::vector<int> empty_vector;
+			actions.push_back(std::make_pair(ACTION_REMOVE_KING_ON_WASTE, empty_vector));
+		}
+		
 		//----------------------------------------------------------
 		// Check pair on top of deck with uncovered card in pyramid
 		//----------------------------------------------------------
@@ -421,12 +422,14 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 		// Check pair on top of deck with waste
 		//----------------------------------------------------------
 		if(check_pair_cards_deck_and_waste(deck_mask, top_deck_index, top_waste_index)) {
+			std::vector<int> empty_vector;
 			actions.push_back(std::make_pair(ACTION_PAIR_CARD_DECK_WASTE, empty_vector));
 		}
 		
 		//----------------------------------------------------------
 		// Action draw card
 		//----------------------------------------------------------
+		std::vector<int> empty_vector;
 		actions.push_back(std::make_pair(ACTION_DRAW, empty_vector));
 	}
 	return actions;
