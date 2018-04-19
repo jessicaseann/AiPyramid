@@ -36,57 +36,57 @@ void BFSPyramid::push_possible_actions(Pyramid *pyramid, std::priority_queue<Sta
 	for(it = moves.begin(); it != moves.end(); it++) {
 		State next_state(current_state);
 //		actions_taken->push_back(std::make_pair(index, *it));
-		std::cout << "- ";
+		//std::cout << "- ";
 		switch(it->first) {
 			case Pyramid::ACTION_DRAW:
 				assert(it->second.size() == 0);
-				std::cout << "(1) Draw" << std::endl;
+				//std::cout << "(1) Draw" << std::endl;
 				if(next_state.draw_deck_index == State::NO_DRAW_DECK_INDEX) next_state.draw_deck_index = next_state.top_deck_index;
 				pyramid->draw_deck(next_state.deck_waste_mask, &(next_state.top_deck_index), &(next_state.top_waste_index), &(next_state.total_reset_deck_count));
 				break;
 			case Pyramid::ACTION_REMOVE_KING_IN_PYRAMID:
 				assert(it->second.size() == 2);
-				std::cout << "(2) Remove king in pyramid\n  === row: " << it->second[0] << ", col: " << it->second[1] << std::endl;
+				//std::cout << "(2) Remove king in pyramid\n  === row: " << it->second[0] << ", col: " << it->second[1] << std::endl;
 				pyramid->remove_king(it->second[0], it->second[1], &(next_state.pyramid_mask));
 				next_state.draw_deck_index = State::NO_DRAW_DECK_INDEX;
 				it = moves.end();
 				break;
 			case Pyramid::ACTION_REMOVE_KING_ON_DECK:
 				assert(it->second.size() == 0);
-				std::cout << "(3) Remove king on top of deck" << std::endl;
+				//std::cout << "(3) Remove king on top of deck" << std::endl;
 				pyramid->remove_king_from_deck(&(next_state.deck_waste_mask), &(next_state.top_deck_index));
 				next_state.draw_deck_index = State::NO_DRAW_DECK_INDEX;
 				it = moves.end();
 				break;
 			case Pyramid::ACTION_REMOVE_KING_ON_WASTE:
 				assert(it->second.size() == 0);
-				std::cout << "(4) Remove king on top of waste" << std::endl;
+				//std::cout << "(4) Remove king on top of waste" << std::endl;
 				pyramid->remove_king_from_waste(&(next_state.deck_waste_mask), &(next_state.top_deck_index));
 				next_state.draw_deck_index = State::NO_DRAW_DECK_INDEX;
 				it = moves.end();
 				break;
 			case Pyramid::ACTION_PAIR_CARDS_PYRAMID:
 				assert(it->second.size() == 4);
-				std::cout << "(5) Pair cards in pyramid | row1: " << it->second[0] << ", col1: " << it->second[1] << std::endl;
-				std::cout << "                            | row2: " << it->second[2] << ", col2: " << it->second[3] << std::endl;
+				//std::cout << "(5) Pair cards in pyramid | row1: " << it->second[0] << ", col1: " << it->second[1] << std::endl;
+				//std::cout << "                            | row2: " << it->second[2] << ", col2: " << it->second[3] << std::endl;
 				pyramid->pair_cards_in_pyramid(it->second[0], it->second[1], it->second[2], it->second[3], &(next_state.pyramid_mask));
 				next_state.draw_deck_index = State::NO_DRAW_DECK_INDEX;
 				break;
 			case Pyramid::ACTION_PAIR_CARD_PYRAMID_DECK:
 				assert(it->second.size() == 2);
-				std::cout << "(6) Pair card in pyramid with top of deck\n  === row: " << it->second[0] << ", col: " << it->second[1] << std::endl;
+				//std::cout << "(6) Pair card in pyramid with top of deck\n  === row: " << it->second[0] << ", col: " << it->second[1] << std::endl;
 				pyramid->pair_cards_deck_and_pyramid(it->second[0], it->second[1], &(next_state.pyramid_mask), &(next_state.top_deck_index), &(next_state.deck_waste_mask));
 				next_state.draw_deck_index = State::NO_DRAW_DECK_INDEX;
 				break;
 			case Pyramid::ACTION_PAIR_CARD_PYRAMID_WASTE:
 				assert(it->second.size() == 2);
-				std::cout << "(7) Pair card in pyramid with top of waste\n  === row: " << it->second[0] << ", col: " << it->second[1] << std::endl;
+				//std::cout << "(7) Pair card in pyramid with top of waste\n  === row: " << it->second[0] << ", col: " << it->second[1] << std::endl;
 				pyramid->pair_cards_waste_and_pyramid(it->second[0], it->second[1], &(next_state.pyramid_mask), &(next_state.top_waste_index), &(next_state.deck_waste_mask));
 				next_state.draw_deck_index = State::NO_DRAW_DECK_INDEX;
 				break;
 			case Pyramid::ACTION_PAIR_CARD_DECK_WASTE:
 				assert(it->second.size() == 0);
-				std::cout << "(7) Pair card on top of deck with top of waste" << std::endl;
+				//std::cout << "(7) Pair card on top of deck with top of waste" << std::endl;
 				pyramid->pair_cards_deck_and_waste(&(next_state.deck_waste_mask), &(next_state.top_deck_index), &(next_state.top_waste_index));
 				next_state.draw_deck_index = State::NO_DRAW_DECK_INDEX;
 				break;
@@ -97,7 +97,7 @@ void BFSPyramid::push_possible_actions(Pyramid *pyramid, std::priority_queue<Sta
 		//###########################################
 		next_state.recalculate();
 		process_state->push(next_state);
-		std::cout << "Value of pyramid = " << next_state.value << std::endl;
+		//std::cout << "Value of pyramid = " << next_state.value << std::endl;
 		
 		/*//###########################################
 		//##       P R I N T   P Y R A M I D       ##
@@ -136,7 +136,7 @@ void BFSPyramid::push_possible_actions(Pyramid *pyramid, std::priority_queue<Sta
 		}
 		*/
 
-		std::cin.get();
+		//std::cin.get();
 		if(it == moves.end()) break;
 	}
 }
@@ -159,7 +159,7 @@ bool BFSPyramid::bfs(Pyramid *pyramid, std::vector< std::pair<int, std::vector<i
 		if(current_state.top_deck_index != current_state.draw_deck_index && visited_state.find(current_state) == visited_state.end()) {
 			visited_state.insert(current_state);
 
-			std::cout << "CURRENT STATE OF PYRAMID" << std::endl;
+			/*std::cout << "CURRENT STATE OF PYRAMID" << std::endl;
 			//###########################################
 			//##       P R I N T   P Y R A M I D       ##
 			//###########################################
@@ -187,7 +187,7 @@ bool BFSPyramid::bfs(Pyramid *pyramid, std::vector< std::pair<int, std::vector<i
 			push_possible_actions(pyramid, &process_state, current_state, count, &actions_taken);
 			count++;
 		}
-		std::cout << "Process state size = " << process_state.size() << std::endl;
+		//std::cout << "Process state size = " << process_state.size() << std::endl;
 		
 		
 		//std::cin.get();

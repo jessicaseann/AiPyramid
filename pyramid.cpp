@@ -343,14 +343,14 @@ std::vector< std::pair<int, std::vector<int> > > Pyramid::get_all_possible_actio
 						location.push_back(row);
 						location.push_back(col);
 						actions.push_back(std::make_pair(ACTION_REMOVE_KING_IN_PYRAMID, location));
-						std::cout<<"king \n";
+						//std::cout<<"king \n";
 					}
 					//------------------------------------
 					// Get all uncovered card except King
 					//------------------------------------
 					else {
 						uncovered_card[pyramid[index]].push_back(std::make_pair(row, col));
-						std::cout<<"uncovered card \n";
+						//std::cout<<"uncovered card \n";
 					}
 				}
 			}
@@ -539,9 +539,7 @@ bool Pyramid::check_pair_cards_waste_and_pyramid(int row, int col, int mask, int
 bool Pyramid::check_remove_king(int row, int col, int mask) {
 	if(row > 7 || row < 1 || col > row || col < 1) return false;
 	if(row !=7 ){
-		if(!check_covered(row, col)){
-		return false;
-	} 
+		if(!check_covered(row, col))return false; 
 	}
 	
 	row--; col--;
