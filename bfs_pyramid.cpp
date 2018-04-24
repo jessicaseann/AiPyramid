@@ -11,7 +11,7 @@ void BFSPyramid::push_possible_actions(Pyramid *pyramid, std::priority_queue<Sta
 	std::vector< std::pair<int, std::vector<int> > > moves = pyramid->get_all_possible_actions(current_state.pyramid_mask, current_state.deck_waste_mask, current_state.top_deck_index, current_state.top_waste_index, current_state.total_reset_deck_count);
 	std::vector< std::pair<int, std::vector<int> > >::iterator it;
 	//system("cls");
-	if(index % 100000 == 0) std::cout << "Iteration #" << index << " | " << current_state.value << std::endl;
+//	if(index % 100000 == 0) std::cout << "Iteration #" << index << " | " << current_state.value << std::endl;
 /*	std::cout << "CURRENT STATE OF PYRAMID" << std::endl;
 	//###########################################
 	//##       P R I N T   P Y R A M I D       ##

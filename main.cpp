@@ -1,8 +1,10 @@
 #include <iostream>
-#include <stdlib.h>
+#include <iomanip>
+#include <cstdlib>
 #include <vector>
 #include <utility>
 #include <cassert>
+#include <ctime>
 #include "pyramid.hpp"
 #include "bfs_pyramid.hpp"
 using namespace std;
@@ -12,30 +14,55 @@ void print_rule();
 void user_input_command(Pyramid *pyramid);
 void print_all_valid_moves(Pyramid *pyramid);
 void print_action(pair<int, vector<int> > action);
+bool check_input(int *cards, int **counter, int *n_counter);
 
 int main() {
 	int cards[Pyramid::TOTAL_CARDS];
-	cout << "Input pyramid and deck: " << endl;
-	for(int i = 0; i < Pyramid::TOTAL_CARDS; i++) cin >> cards[i];
+	do {
+		cout << "Input pyramid and deck: " << endl;
+		for(int i = 0; i < Pyramid::TOTAL_CARDS; i++) cin >> cards[i];
 
+		int n_counter, *counter;
+		if(!check_input(cards, &counter, &n_counter)) {
+			for(int i = 1; i < n_counter; i++) {
+				if(counter[i] != 4) cout << i << ": " << counter[i] << endl;
+			}
+		} else break;
+	} while(true);
+	
 	Pyramid pyramid(cards);
 	vector< pair<int, vector<int> > > actions_taken;
 	BFSPyramid solver;
-	bool solvable = solver.bfs(&pyramid, &actions_taken);
-
-	if(solvable) {
-		cout << "SOLVABLE" << endl;
-		for(int i = actions_taken.size() - 1; i >= 0; i--) {
-			cout << "ACTION #" << actions_taken.size() - i << ":" << endl;
-			print_action(actions_taken[i]);
-			cout << endl;
-		}
-	} else {
-		cout << "Impossible to solve" << endl;
-	}
 	
+	cout << "####    Pyramid    ####" << endl;
 	print_game(&pyramid);
 
+	// Start timer
+	clock_t begin = clock();
+	bool solvable = solver.bfs(&pyramid, &actions_taken);
+	clock_t end = clock();
+	double time = ((double)(end - begin)) * 1000 / CLOCKS_PER_SEC;
+	
+	if(solvable) {
+		cout << "### SOLVABLE ###" << endl;
+		cout << fixed << setprecision(6) << "Processed in " << time << " millisecond(s)" << endl;
+		cout << "Do you want to get the actions? (Y/N)";
+		char input;
+		do {
+			cin >> input;
+		} while (input != 'Y' && input != 'y' && input != 'N' && input != 'n');
+		if(input == 'Y' || input == 'y') {
+			for(int i = actions_taken.size() - 1; i >= 0; i--) {
+				cout << "ACTION #" << actions_taken.size() - i << ":" << endl;
+				print_action(actions_taken[i]);
+				cout << endl;
+			}
+		}
+	} else {
+		cout << "Impossible to solve :(" << endl;
+		cout << fixed << setprecision(6) << "Processed in " << time << " millisecond(s)" << endl;
+	}
+	
 /*	while(!pyramid.is_finished()) {
 		cout << solvable << " = " << (solvable? "CAN WIN" : "IMPOSSIBLE") << endl;
 		print_game(&pyramid);
@@ -276,4 +303,22 @@ void print_action(pair<int, vector<int> > action) {
 			break;
 		default: break;
 	}
+}
+
+bool check_input(int *cards, int **counter, int *n_counter) {
+	if(*counter == NULL || *n_counter != 14) {
+		(*counter) = (int*)malloc(sizeof(int) * 14);
+		(*n_counter) = 14;
+	}
+	for(int i = 1; i <= 13; i++) {
+		(*counter)[i] = 0;
+	}
+	for(int i = 0; i < Pyramid::TOTAL_CARDS; i++) {
+		(*counter)[cards[i]]++;
+	}
+	bool valid = true;
+	for(int i = 1; i <= 13; i++) {
+		if((*counter)[i] != 4) valid = false;
+	}
+	return valid;
 }
