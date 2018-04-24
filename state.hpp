@@ -12,9 +12,11 @@ struct State {
 	int total_reset_deck_count;
 	int value;
 	int draw_deck_index;
+	int current_index;
 	
 	State() {
 		draw_deck_index = NO_DRAW_DECK_INDEX;
+		current_index = -1;
 	}
 	State(const State &state) {
 		pyramid_mask = state.pyramid_mask;
@@ -23,6 +25,7 @@ struct State {
 		top_waste_index = state.top_waste_index;
 		total_reset_deck_count = state.total_reset_deck_count;
 		draw_deck_index = state.draw_deck_index;
+		current_index = state.current_index;
 		recalculate();
 	}
 	

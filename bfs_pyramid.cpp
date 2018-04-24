@@ -35,7 +35,8 @@ void BFSPyramid::push_possible_actions(Pyramid *pyramid, std::priority_queue<Sta
 */
 	for(it = moves.begin(); it != moves.end(); it++) {
 		State next_state(current_state);
-//		actions_taken->push_back(std::make_pair(index, *it));
+		next_state.current_index = actions_taken->size();
+		actions_taken->push_back(std::make_pair(current_state.current_index, *it));
 		//std::cout << "- ";
 		switch(it->first) {
 			case Pyramid::ACTION_DRAW:
@@ -86,7 +87,7 @@ void BFSPyramid::push_possible_actions(Pyramid *pyramid, std::priority_queue<Sta
 				break;
 			case Pyramid::ACTION_PAIR_CARD_DECK_WASTE:
 				assert(it->second.size() == 0);
-				//std::cout << "(7) Pair card on top of deck with top of waste" << std::endl;
+				//std::cout << "(8) Pair card on top of deck with top of waste" << std::endl;
 				pyramid->pair_cards_deck_and_waste(&(next_state.deck_waste_mask), &(next_state.top_deck_index), &(next_state.top_waste_index));
 				next_state.draw_deck_index = State::NO_DRAW_DECK_INDEX;
 				break;
@@ -143,8 +144,9 @@ void BFSPyramid::push_possible_actions(Pyramid *pyramid, std::priority_queue<Sta
 
 bool BFSPyramid::bfs(Pyramid *pyramid, std::vector< std::pair<int, std::vector<int> > > *actions_taken_result) {
 	State starting_state = pyramid->get_state();
+	starting_state.current_index = -1;
 	starting_state.recalculate();
-	int count = -1;
+	int count = -1, winnable_index;
 	std::vector< std::pair<int, std::pair<int, std::vector<int> > > > actions_taken;
 	bool win = false;
 	std::set<State> visited_state;
@@ -182,6 +184,7 @@ bool BFSPyramid::bfs(Pyramid *pyramid, std::vector< std::pair<int, std::vector<i
 			
 			if(current_state.pyramid_mask == 0 || current_state.value == 0) {
 				win = true;
+				winnable_index = current_state.current_index;
 				break;
 			}
 			push_possible_actions(pyramid, &process_state, current_state, count, &actions_taken);
@@ -192,12 +195,57 @@ bool BFSPyramid::bfs(Pyramid *pyramid, std::vector< std::pair<int, std::vector<i
 		
 		//std::cin.get();
 	}
-/*	if(win) {
-		while(count > -1) {
-			actions_taken_result->push_back(actions_taken[count].second);
-			count = actions_taken[count].first;
+	
+	if(win) {
+//		std::cout << "Last index : " << winnable_index << std::endl;
+/*		for(int i = actions_taken.size() - 1; i >= 0; i--) {
+			std::cout << "ACTION #" << i << ": (Action before = " << actions_taken[i].first << ")" << std::endl;
+			std::pair<int, std::vector<int> > action = actions_taken[i].second;
+			switch(action.first) {
+				case Pyramid::ACTION_DRAW:
+					assert(action.second.size() == 0);
+					std::cout << "(1) Draw" << std::endl;
+					break;
+				case Pyramid::ACTION_REMOVE_KING_IN_PYRAMID:
+					assert(action.second.size() == 2);
+					std::cout << "(2) Remove king in pyramid\n  === row: " << action.second[0] << ", col: " << action.second[1] << std::endl;
+					break;
+				case Pyramid::ACTION_REMOVE_KING_ON_DECK:
+					assert(action.second.size() == 0);
+					std::cout << "(3) Remove king on top of deck" << std::endl;
+					break;
+				case Pyramid::ACTION_REMOVE_KING_ON_WASTE:
+					assert(action.second.size() == 0);
+					std::cout << "(4) Remove king on top of waste" << std::endl;
+					break;
+				case Pyramid::ACTION_PAIR_CARDS_PYRAMID:
+					assert(action.second.size() == 4);
+					std::cout << "(5) Pair cards in pyramid | row1: " << action.second[0] << ", col1: " << action.second[1] << std::endl;
+					std::cout << "                            | row2: " << action.second[2] << ", col2: " << action.second[3] << std::endl;
+					break;
+				case Pyramid::ACTION_PAIR_CARD_PYRAMID_DECK:
+					assert(action.second.size() == 2);
+					std::cout << "(6) Pair card in pyramid with top of deck\n  === row: " << action.second[0] << ", col: " << action.second[1] << std::endl;
+					break;
+				case Pyramid::ACTION_PAIR_CARD_PYRAMID_WASTE:
+					assert(action.second.size() == 2);
+					std::cout << "(7) Pair card in pyramid with top of waste\n  === row: " << action.second[0] << ", col: " << action.second[1] << std::endl;
+					break;
+				case Pyramid::ACTION_PAIR_CARD_DECK_WASTE:
+					assert(action.second.size() == 0);
+					std::cout << "(8) Pair card on top of deck with top of waste" << std::endl;
+					break;
+				default: break;
+			}
+			std::cout << std::endl;
+		}
+*/
+
+		while(winnable_index > -1) {
+			actions_taken_result->push_back(actions_taken[winnable_index].second);
+			winnable_index = actions_taken[winnable_index].first;
 		}
 	}
-*/	
+
 	return win;
 }

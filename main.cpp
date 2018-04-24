@@ -11,6 +11,7 @@ void print_game(Pyramid *pyramid);
 void print_rule();
 void user_input_command(Pyramid *pyramid);
 void print_all_valid_moves(Pyramid *pyramid);
+void print_action(pair<int, vector<int> > action);
 
 int main() {
 	int cards[Pyramid::TOTAL_CARDS];
@@ -22,7 +23,20 @@ int main() {
 	BFSPyramid solver;
 	bool solvable = solver.bfs(&pyramid, &actions_taken);
 
-	while(!pyramid.is_finished()) {
+	if(solvable) {
+		cout << "SOLVABLE" << endl;
+		for(int i = actions_taken.size() - 1; i >= 0; i--) {
+			cout << "ACTION #" << actions_taken.size() - i << ":" << endl;
+			print_action(actions_taken[i]);
+			cout << endl;
+		}
+	} else {
+		cout << "Impossible to solve" << endl;
+	}
+	
+	print_game(&pyramid);
+
+/*	while(!pyramid.is_finished()) {
 		cout << solvable << " = " << (solvable? "CAN WIN" : "IMPOSSIBLE") << endl;
 		print_game(&pyramid);
 		print_rule();
@@ -33,7 +47,7 @@ int main() {
 		cin.get();
 		system("cls");
 	}
-
+*/
 	return 0;
 }
 
@@ -218,9 +232,48 @@ void print_all_valid_moves(Pyramid *pyramid) {
 				break;
 			case Pyramid::ACTION_PAIR_CARD_DECK_WASTE:
 				assert(it->second.size() == 0);
-				cout << "(7) Pair card on top of deck with top of waste" << endl;
+				cout << "(8) Pair card on top of deck with top of waste" << endl;
 				break;
 			default: break;
 		}
+	}
+}
+
+void print_action(pair<int, vector<int> > action) {
+	switch(action.first) {
+		case Pyramid::ACTION_DRAW:
+			assert(action.second.size() == 0);
+			cout << "(1) Draw" << endl;
+			break;
+		case Pyramid::ACTION_REMOVE_KING_IN_PYRAMID:
+			assert(action.second.size() == 2);
+			cout << "(2) Remove king in pyramid\n  === row: " << action.second[0] << ", col: " << action.second[1] << endl;
+			break;
+		case Pyramid::ACTION_REMOVE_KING_ON_DECK:
+			assert(action.second.size() == 0);
+			cout << "(3) Remove king on top of deck" << endl;
+			break;
+		case Pyramid::ACTION_REMOVE_KING_ON_WASTE:
+			assert(action.second.size() == 0);
+			cout << "(4) Remove king on top of waste" << endl;
+			break;
+		case Pyramid::ACTION_PAIR_CARDS_PYRAMID:
+			assert(action.second.size() == 4);
+			cout << "(5) Pair cards in pyramid | row1: " << action.second[0] << ", col1: " << action.second[1] << endl;
+			cout << "                          | row2: " << action.second[2] << ", col2: " << action.second[3] << endl;
+			break;
+		case Pyramid::ACTION_PAIR_CARD_PYRAMID_DECK:
+			assert(action.second.size() == 2);
+			cout << "(6) Pair card in pyramid with top of deck\n=== row: " << action.second[0] << ", col: " << action.second[1] << endl;
+			break;
+		case Pyramid::ACTION_PAIR_CARD_PYRAMID_WASTE:
+			assert(action.second.size() == 2);
+			cout << "(7) Pair card in pyramid with top of waste\n=== row: " << action.second[0] << ", col: " << action.second[1] << endl;
+			break;
+		case Pyramid::ACTION_PAIR_CARD_DECK_WASTE:
+			assert(action.second.size() == 0);
+			cout << "(8) Pair card on top of deck with top of waste" << endl;
+			break;
+		default: break;
 	}
 }
