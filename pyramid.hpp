@@ -118,7 +118,8 @@ class Pyramid
 	bool check_remove_king_from_deck(int mask = NO_MASK, int top_deck_index = NO_CARD_INDEX);
 	// Check Remove king from the top of the waste
 	bool check_remove_king_from_waste(int mask = NO_MASK, int top_waste_index = NO_CARD_INDEX);
-	
+	// Check if that state is winnable
+	bool is_winnable_state(const State &state);
 	// Obtain the status of the game
 	// Finished when the total_reset_deck equals to 3
 	bool is_finished(int mask = NO_MASK, int total_reset_deck_count = NO_CARD_INDEX);

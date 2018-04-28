@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
+#include <cassert>
 
 /*+- Card Representation -+
   |      -1   : -         |
@@ -569,6 +570,72 @@ bool Pyramid::check_remove_king_from_waste(int mask, int top_waste_index) {
 		return true;
 	} else return false;
 }
+
+// Check if that state is winnable
+bool Pyramid::is_winnable_state(const State &state) {
+	std::vector< std::pair<int, int> > available_card[TOTAL_POSSIBLE_UNCOVERED_CARDS + 1];
+	int count_in_deck[TOTAL_POSSIBLE_UNCOVERED_CARDS + 1];
+	int mask = state.pyramid_mask;
+	int deck_mask = state.deck_waste_mask;
+
+	// Clear all uncovered card
+	for(int i = 0; i <= TOTAL_POSSIBLE_UNCOVERED_CARDS; i++) {
+		available_card[i].clear();
+		count_in_deck[i] = 0;
+	}
+
+	for(int i = TOTAL_PYRAMID_CARDS; i < TOTAL_CARDS; i++) {
+		if(get_deck_waste_mask_value(i, deck_mask)) {
+			count_in_deck[pyramid[i]]++;
+		}
+	}
+
+/*	for(int i = 0; i <= TOTAL_POSSIBLE_UNCOVERED_CARDS; i++) {
+		std::cout << count_in_deck[i] << " ";
+	}
+	std::cout << std::endl;
+*/
+	for(int row = 1; row <= TOTAL_ROW; row++) {
+		for(int col = 1; col <= row; col++) {
+			int index = (row - 1) * row / 2 + col - 1;
+			if(get_pyramid_mask_value(index, mask)) {
+				available_card[pyramid[index]].push_back(std::make_pair(row, col));
+			}
+		}
+	}
+	
+/*	for(int i = 1; i < TOTAL_POSSIBLE_UNCOVERED_CARDS; i++) {
+		std::cout << "Card #" << i << ": ";
+		for(int j = 0; j < available_card[i].size(); j++) {
+			std::cout << "(" << available_card[i][j].first << "," << available_card[i][j].second << ") ";
+		}
+		std::cout << std::endl;
+	}
+*/	
+	//----------------------------------------------------------
+	// Check pair of uncovered cards in pyramid
+	//----------------------------------------------------------
+	std::vector< std::pair<int, int> >::iterator fc, sc;
+	int row1, col1, row2, col2;
+	for(int i = 1; i < TOTAL_POSSIBLE_UNCOVERED_CARDS; i++) {
+		int pc = 13 - i;
+		if(available_card[i].size() > 0 && available_card[pc].size() > 0) {
+			for(fc = available_card[i].begin(); fc != available_card[i].end(); fc++) {
+				int available_count = count_in_deck[pc];
+				for(sc = available_card[pc].begin(); sc != available_card[pc].end(); sc++) {
+					row1 = fc->first;
+					col1 = fc->second;
+					row2 = sc->first;
+					col2 = sc->second;
+					if(!(row2 > row1 && col2 >=col1 && col2 <= (row2 - (row1 - col1)))) available_count++;
+				}
+				assert(available_count <= 4);
+				if(available_count == 0) return false;
+			}
+		}
+	}
+	return true;
+}	
 
 // Obtain the status of the game
 // Finished when the total_reset_deck equals to 3

@@ -59,14 +59,6 @@ struct State {
 		return !operator<(a, b);
 	}
 	
-/*	bool operator < (const State &state) const {
-		return (value < state.value) || (!(value > state.value) && pyramid_mask < state.pyramid_mask) || (!(value > state.value) && !(pyramid_mask > state.pyramid_mask) && deck_waste_mask < state.deck_waste_mask) || (!(value > state.value) && !(pyramid_mask > state.pyramid_mask) && !(deck_waste_mask > state.deck_waste_mask) && top_deck_index < state.top_deck_index) || (!(value > state.value) && !(pyramid_mask > state.pyramid_mask) && !(deck_waste_mask > state.deck_waste_mask) && !(top_deck_index > state.top_deck_index) && top_waste_index < state.top_waste_index) || (!(value > state.value) && !(pyramid_mask > state.pyramid_mask) && !(deck_waste_mask > state.deck_waste_mask) && !(top_deck_index > state.top_deck_index) && !(top_waste_index > state.top_waste_index) && total_reset_deck_count < state.total_reset_deck_count);
-	}
-	
-	bool operator > (const State &state) const {
-		return (value > state.value) || (!(value < state.value) && pyramid_mask > state.pyramid_mask) || (!(value < state.value) && !(pyramid_mask < state.pyramid_mask) && deck_waste_mask > state.deck_waste_mask) || (!(value < state.value) && !(pyramid_mask < state.pyramid_mask) && !(deck_waste_mask < state.deck_waste_mask) && top_deck_index > state.top_deck_index) || (!(value < state.value) && !(pyramid_mask < state.pyramid_mask) && !(deck_waste_mask < state.deck_waste_mask) && !(top_deck_index < state.top_deck_index) && top_waste_index > state.top_waste_index) || (!(value < state.value) && !(pyramid_mask < state.pyramid_mask) && !(deck_waste_mask < state.deck_waste_mask) && !(top_deck_index < state.top_deck_index) && !(top_waste_index < state.top_waste_index) && total_reset_deck_count > state.total_reset_deck_count);
-	}
-*/	
 	void recalculate() {
 		int temporary = pyramid_mask;
 		value = 0;

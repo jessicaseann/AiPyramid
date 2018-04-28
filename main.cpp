@@ -44,7 +44,7 @@ int main() {
 	double time = ((double)(end - begin)) * 1000 / CLOCKS_PER_SEC;
 	
 	if(solvable) {
-		cout << "### SOLVABLE ###" << endl;
+		cout << "### SOLVABLE in " << actions_taken.size() << " steps ###" << endl;
 		cout << fixed << setprecision(6) << "Processed in " << time << " millisecond(s)" << endl;
 		cout << "Do you want to get the actions? (Y/N)";
 		char input;
