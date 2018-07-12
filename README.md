@@ -8,4 +8,4 @@ This project is a console-based program and use A* search method to solving the 
   * [Steven Albert](https://github.com/stevenalbert )
   * [Joseph](https://github.com/josephgunawan97) 
   * [Jessica Sean](https://github.com/jessicasean) 
-  * [Alvin Callysta] (https://github.com/alvincallysta11)
+  * [Alvin Callysta](https://github.com/alvincallysta11)
